@@ -47,11 +47,16 @@ async function run() {
     
     // Create root SVG document
     // We'll determine the dimensions based on the layout items
+    let minX = 0;
+    let minY = 0;
     let maxWidth = 0;
     let maxHeight = 0;
     
-    // Process each layout item to find max dimensions
+    // Process each layout item to find dimensions
     layout.forEach(item => {
+      if (item.x < minX) minX = item.x;
+      if (item.y < minY) minY = item.y;
+      
       const itemRight = item.x + item.width;
       const itemBottom = item.y + item.height;
       
@@ -59,13 +64,37 @@ async function run() {
       if (itemBottom > maxHeight) maxHeight = itemBottom;
     });
     
+    // Set fixed dimensions for background
+    const bgMinX = -150;
+    const bgMaxX = 850;
+    const bgMinY = 0;
+    const bgMaxY = 550;
+    
+    // Adjust canvas dimensions to include all content and background
+    const canvasMinX = Math.min(minX, bgMinX);
+    const canvasMaxX = Math.max(maxWidth, bgMaxX);
+    const canvasMinY = Math.min(minY, bgMinY);
+    const canvasMaxY = Math.max(maxHeight, bgMaxY);
+    
+    const canvasWidth = canvasMaxX - canvasMinX;
+    const canvasHeight = canvasMaxY - canvasMinY;
+    
     // Create the root SVG with calculated dimensions
     const rootSvg = parser.parseFromString(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="${maxWidth}" height="${maxHeight}" viewBox="0 0 ${maxWidth} ${maxHeight}"></svg>`,
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${canvasWidth}" height="${canvasHeight}" viewBox="${canvasMinX} ${canvasMinY} ${canvasWidth} ${canvasHeight}"></svg>`,
       'image/svg+xml'
     );
     
     const rootElement = rootSvg.documentElement;
+    
+    // Add white background as the first element
+    const backgroundRect = rootSvg.createElement('rect');
+    backgroundRect.setAttribute('x', bgMinX.toString());
+    backgroundRect.setAttribute('y', bgMinY.toString());
+    backgroundRect.setAttribute('width', (bgMaxX - bgMinX).toString());
+    backgroundRect.setAttribute('height', (bgMaxY - bgMinY).toString());
+    backgroundRect.setAttribute('fill', 'white');
+    rootElement.appendChild(backgroundRect);
     
     // Process each layout item
     for (const item of layout) {
@@ -92,9 +121,29 @@ async function run() {
             content = `data:${mimeType};base64,${base64}`;
           }
         } else if (item.url.startsWith('blob:')) {
-          // Local file - read from disk
+          // Local file - read from disk (keeping the blob: prefix for compatibility)
           const filePath = item.url.substring(5); // Remove 'blob:' prefix
           const imagePath = path.join('images', filePath);
+          
+          core.info(`Reading local file: ${imagePath}`);
+          
+          if (!assetMap.has(imagePath)) {
+            throw new Error(`Local asset not found: ${imagePath}`);
+          }
+          
+          const fileContent = await fs.readFile(assetMap.get(imagePath));
+          
+          if (item.type === 'svg') {
+            content = fileContent.toString('utf8');
+          } else {
+            // For images, convert to base64
+            const base64 = fileContent.toString('base64');
+            const mimeType = item.type === 'image' ? 'image/png' : `image/${item.type}`;
+            content = `data:${mimeType};base64,${base64}`;
+          }
+        } else if (item.url.startsWith('images/')) {
+          // Direct path to images directory
+          const imagePath = item.url;
           
           core.info(`Reading local file: ${imagePath}`);
           
@@ -122,27 +171,63 @@ async function run() {
           const svgDoc = parser.parseFromString(content, 'image/svg+xml');
           const svgElement = svgDoc.documentElement;
           
-          // Create a group to position the SVG
+          // Create a group to position and scale the SVG
           const group = rootSvg.createElement('g');
           group.setAttribute('transform', `translate(${item.x}, ${item.y})`);
           
-          // If the SVG has a viewBox, use it to scale the content
-          if (svgElement.hasAttribute('viewBox')) {
-            const viewBox = svgElement.getAttribute('viewBox').split(' ');
-            const svgWidth = parseFloat(svgElement.getAttribute('width') || viewBox[2]);
-            const svgHeight = parseFloat(svgElement.getAttribute('height') || viewBox[3]);
-            
-            // Apply scale if necessary
-            if (svgWidth !== item.width || svgHeight !== item.height) {
-              const scaleX = item.width / svgWidth;
-              const scaleY = item.height / svgHeight;
-              group.setAttribute('transform', `translate(${item.x}, ${item.y}) scale(${scaleX}, ${scaleY})`);
+          // Get SVG dimensions
+          let svgWidth, svgHeight;
+          
+          if (svgElement.hasAttribute('width') && svgElement.hasAttribute('height')) {
+            svgWidth = parseFloat(svgElement.getAttribute('width'));
+            svgHeight = parseFloat(svgElement.getAttribute('height'));
+          } else if (svgElement.hasAttribute('viewBox')) {
+            const viewBox = svgElement.getAttribute('viewBox').split(/[\s,]+/);
+            svgWidth = parseFloat(viewBox[2]);
+            svgHeight = parseFloat(viewBox[3]);
+          } else {
+            // Default dimensions if not specified
+            svgWidth = item.width;
+            svgHeight = item.height;
+          }
+          
+          // Apply scale if necessary
+          if (svgWidth !== item.width || svgHeight !== item.height) {
+            const scaleX = item.width / svgWidth;
+            const scaleY = item.height / svgHeight;
+            group.setAttribute('transform', `translate(${item.x}, ${item.y}) scale(${scaleX}, ${scaleY})`);
+          }
+          
+          // Preserve animations and other dynamic elements by copying the entire SVG content
+          // Instead of copying each child node individually, we extract all child nodes
+          // AND copy important attributes from the root SVG element
+          
+          // Copy necessary attributes from source SVG
+          // These are important for animations, CSS, etc.
+          const attributesToCopy = ['style', 'class', 'xmlns:xlink'];
+          attributesToCopy.forEach(attr => {
+            if (svgElement.hasAttribute(attr)) {
+              group.setAttribute(attr, svgElement.getAttribute(attr));
+            }
+          });
+          
+          // Extract and copy all defs (important for animations, gradients, etc.)
+          const defsElements = svgElement.getElementsByTagName('defs');
+          if (defsElements.length > 0) {
+            for (let i = 0; i < defsElements.length; i++) {
+              const defs = defsElements[i];
+              const clonedDefs = defs.cloneNode(true);
+              group.appendChild(clonedDefs);
             }
           }
           
-          // Copy all child nodes from the SVG to our group
-          while (svgElement.firstChild) {
-            group.appendChild(svgElement.firstChild.cloneNode(true));
+          // Copy all child nodes to maintain structure and animations
+          for (let i = 0; i < svgElement.childNodes.length; i++) {
+            const node = svgElement.childNodes[i];
+            // Skip defs nodes as they have already been processed
+            if (node.nodeName !== 'defs') {
+              group.appendChild(node.cloneNode(true));
+            }
           }
           
           rootElement.appendChild(group);
@@ -168,7 +253,7 @@ async function run() {
     // Write merged SVG to temporary file
     await fs.writeFile('merged.svg', mergedSvgString);
     
-    // Optimize SVG with SVGO
+    // Optimize SVG with SVGO but preserve animations
     core.info('Optimizing SVG with SVGO...');
     const optimizedSvg = optimize(mergedSvgString, {
       plugins: [
@@ -176,10 +261,24 @@ async function run() {
           name: 'preset-default',
           params: {
             overrides: {
-              // Disable plugins that might break layout
+              // Disable plugins that might break animations or layout
               removeViewBox: false,
               removeHiddenElems: false,
-              removeUselessDefs: false
+              removeUselessDefs: false,
+              convertShapeToPath: false,
+              moveElemsAttrsToGroup: false,
+              moveGroupAttrsToElems: false,
+              collapseGroups: false,
+              convertPathData: false,
+              removeEmptyAttrs: false,
+              removeEmptyContainers: false,
+              mergePaths: false,
+              removeUnknownsAndDefaults: false,
+              removeNonInheritableGroupAttrs: false,
+              // Critical for animations
+              inlineStyles: false,
+              minifyStyles: false,
+              cleanupIDs: false
             },
           },
         },
