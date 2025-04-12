@@ -64,18 +64,18 @@ jobs:
                 "url": "images/LeftCorner.svg",
                 "type": "svg",
                 "x": -112.45271176966187,
-                "y": 239.20130281962759,
-                "width": 296,
-                "height": 398
+                "y": 255,
+                "width": 300,
+                "height": 300
               },
               {
                 "id": "bbe347b7-d50b-4a4d-b79d-39bb8aa8e6b2",
                 "url": "images/RightCorner.svg",
                 "type": "svg",
                 "x": 600.2567397548477,
-                "y": 255.74639883366535,
-                "width": 323,
-                "height": 330
+                "y": 255,
+                "width": 300,
+                "height": 300
               }
             ]
           assets: "images/*.svg,images/*.png"
