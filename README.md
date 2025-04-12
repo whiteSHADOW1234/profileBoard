@@ -7,8 +7,7 @@ This GitHub Action automatically composes multiple SVGs and images (from URLs or
 
 ![Screenshot of the Profile Board Website](screenshot.png)
 
-<img 
-  src="README.svg" />
+[Rendered link for the generated SVG](https://www.svgviewer.dev/s/zuCi5j1p)
 
 ## 🤔 Why Use This Action?
 
