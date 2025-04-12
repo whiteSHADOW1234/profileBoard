@@ -1,0 +1,24 @@
+name: 'SVG Layout Composer'
+description: 'Composes multiple SVGs or images into a single SVG based on layout coordinates'
+author: 'whiteSHADOW1234'
+
+inputs:
+  layout:
+    description: 'JSON array of items with coordinates and source URLs'
+    required: true
+  assets:
+    description: 'Comma-separated list of file glob patterns'
+    required: false
+    default: 'images/*.svg'
+  token:
+    description: 'GitHub token for committing changes'
+    required: true
+    default: ${{ github.token }}
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
+
+branding:
+  icon: 'layout'
+  color: 'blue'
