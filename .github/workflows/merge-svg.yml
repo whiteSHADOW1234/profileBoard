@@ -64,7 +64,7 @@ jobs:
                 "url": "images/LeftCorner.svg",
                 "type": "svg",
                 "x": -112.45271176966187,
-                "y": 255,
+                "y": 265,
                 "width": 300,
                 "height": 300
               },
@@ -73,7 +73,7 @@ jobs:
                 "url": "images/RightCorner.svg",
                 "type": "svg",
                 "x": 600.2567397548477,
-                "y": 255,
+                "y": 265,
                 "width": 300,
                 "height": 300
               }
