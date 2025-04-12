@@ -61,7 +61,7 @@ jobs:
               },
               {
                 "id": "a5e20d49-9593-4278-8294-0d72a887d5a6",
-                "url": "images/RightCorner.svg",
+                "url": "images/LeftCorner.svg",
                 "type": "svg",
                 "x": -112.45271176966187,
                 "y": 239.20130281962759,
@@ -70,7 +70,7 @@ jobs:
               },
               {
                 "id": "bbe347b7-d50b-4a4d-b79d-39bb8aa8e6b2",
-                "url": "images/LeftCorner.svg",
+                "url": "images/RightCorner.svg",
                 "type": "svg",
                 "x": 600.2567397548477,
                 "y": 255.74639883366535,

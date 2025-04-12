@@ -45,56 +45,22 @@ async function run() {
       }
     }
     
-    // Create root SVG document
-    // We'll determine the dimensions based on the layout items
-    let minX = 0;
-    let minY = 0;
-    let maxWidth = 0;
-    let maxHeight = 0;
+    // Set fixed dimensions as requested
+    const minX = -150;
+    const maxX = 850;
+    const minY = 0;
+    const maxY = 250;
     
-    // Process each layout item to find dimensions
-    layout.forEach(item => {
-      if (item.x < minX) minX = item.x;
-      if (item.y < minY) minY = item.y;
-      
-      const itemRight = item.x + item.width;
-      const itemBottom = item.y + item.height;
-      
-      if (itemRight > maxWidth) maxWidth = itemRight;
-      if (itemBottom > maxHeight) maxHeight = itemBottom;
-    });
+    const svgWidth = maxX - minX;
+    const svgHeight = maxY - minY;
     
-    // Set fixed dimensions for background
-    const bgMinX = -150;
-    const bgMaxX = 850;
-    const bgMinY = 0;
-    const bgMaxY = 550;
-    
-    // Adjust canvas dimensions to include all content and background
-    const canvasMinX = Math.min(minX, bgMinX);
-    const canvasMaxX = Math.max(maxWidth, bgMaxX);
-    const canvasMinY = Math.min(minY, bgMinY);
-    const canvasMaxY = Math.max(maxHeight, bgMaxY);
-    
-    const canvasWidth = canvasMaxX - canvasMinX;
-    const canvasHeight = canvasMaxY - canvasMinY;
-    
-    // Create the root SVG with calculated dimensions
+    // Create the root SVG with fixed dimensions
     const rootSvg = parser.parseFromString(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="${canvasWidth}" height="${canvasHeight}" viewBox="${canvasMinX} ${canvasMinY} ${canvasWidth} ${canvasHeight}"></svg>`,
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${svgWidth}" height="${svgHeight}" viewBox="${minX} ${minY} ${svgWidth} ${svgHeight}"></svg>`,
       'image/svg+xml'
     );
     
     const rootElement = rootSvg.documentElement;
-    
-    // Add white background as the first element
-    const backgroundRect = rootSvg.createElement('rect');
-    backgroundRect.setAttribute('x', bgMinX.toString());
-    backgroundRect.setAttribute('y', bgMinY.toString());
-    backgroundRect.setAttribute('width', (bgMaxX - bgMinX).toString());
-    backgroundRect.setAttribute('height', (bgMaxY - bgMinY).toString());
-    backgroundRect.setAttribute('fill', 'white');
-    rootElement.appendChild(backgroundRect);
     
     // Process each layout item
     for (const item of layout) {
@@ -198,12 +164,7 @@ async function run() {
             group.setAttribute('transform', `translate(${item.x}, ${item.y}) scale(${scaleX}, ${scaleY})`);
           }
           
-          // Preserve animations and other dynamic elements by copying the entire SVG content
-          // Instead of copying each child node individually, we extract all child nodes
-          // AND copy important attributes from the root SVG element
-          
-          // Copy necessary attributes from source SVG
-          // These are important for animations, CSS, etc.
+          // Copy necessary attributes from source SVG for animations
           const attributesToCopy = ['style', 'class', 'xmlns:xlink'];
           attributesToCopy.forEach(attr => {
             if (svgElement.hasAttribute(attr)) {
