@@ -96470,9 +96470,9 @@ async function run() {
     
     // Set fixed dimensions as requested
     const minX = -150;
-    const maxX = 850;
+    const maxX = 900;
     const minY = 0;
-    const maxY = 250;
+    const maxY = 500;
     
     const svgWidth = maxX - minX;
     const svgHeight = maxY - minY;
