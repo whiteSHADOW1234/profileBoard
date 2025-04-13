@@ -25,7 +25,62 @@ jobs:
         uses: ./           # your local Action
         with:
           layout: |
-            [ … your layout JSON … ]
+            [
+              {
+                "id": "ee90d6c8-849b-4997-b2ba-80f1dff77e39",
+                "url": "https://github-readme-status-whiteshadow1234.vercel.app/api?username=whiteSHADOW1234&count_private=true&show_icons=true&theme=prussian&border_radius=20",
+                "type": "image",
+                "x": -96.22974046204877,
+                "y": -20.670062033716064,
+                "width": 486,
+                "height": 253
+              },
+              {
+                "id": "7e28e495-0660-437c-87a2-88ed090d1dfa",
+                "url": "https://github-readme-status-whiteshadow1234.vercel.app/api/top-langs/?username=whiteSHADOW1234&layout=compact&langs_count=4&hide=CMake&border_radius=20&theme=nightowl",
+                "type": "image",
+                "x": 423,
+                "y": -11,
+                "width": 476,
+                "height": 237
+              },
+              {
+                "id": "bf3b060f-1d4c-4e7c-8a28-7234f6567321",
+                "url": "https://github-profile-trophy.vercel.app/?username=whiteshadow1234&theme=onedark&row=1",
+                "type": "image",
+                "x": -2,
+                "y": 214,
+                "width": 823,
+                "height": 98
+              },
+              {
+                "id": "8e898692-ced9-4874-a2d2-10df2f969405",
+                "url": "https://streak-stats.demolab.com?user=whiteSHADOW1234&theme=tokyonight&border_radius=10",
+                "type": "image",
+                "x": 80,
+                "y": 325,
+                "width": 639,
+                "height": 223
+              },
+              {
+                "id": "a5e20d49-9593-4278-8294-0d72a887d5a6",
+                "url": "images/LeftCorner.svg",
+                "type": "svg",
+                "x": -112.45271176966187,
+                "y": 300,
+                "width": 300,
+                "height": 300
+              },
+              {
+                "id": "bbe347b7-d50b-4a4d-b79d-39bb8aa8e6b2",
+                "url": "images/RightCorner.svg",
+                "type": "svg",
+                "x": 600.2567397548477,
+                "y": 300,
+                "width": 300,
+                "height": 300
+              }
+            ]
           assets: "images/*.svg,images/*.png"
           token: ${{ secrets.GITHUB_TOKEN }}
 
