@@ -8,7 +8,7 @@ const fs = require('fs');
 const axios = require('axios');
 const { JSDOM } = require('jsdom');
 
-const layout = JSON.parse(fs.readFileSync('layout.json', 'utf8'));
+const layout = core.getInput('layout', { required: true });
 
 async function fetchSVGContent(url) {
 try {
