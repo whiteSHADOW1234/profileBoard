@@ -4,7 +4,7 @@
     "description": "GitHub Action to compose SVGs and images according to layout specifications",
     "main": "index.js",
     "scripts": {
-      "build": "ncc build index.js -o dist && cd dist && ren index.js index.cjs",
+      "build": "npx @vercel/ncc build index.js -o dist",
       "test": "jest"
     },
     "keywords": [
