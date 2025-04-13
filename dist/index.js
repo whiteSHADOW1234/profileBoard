@@ -96477,7 +96477,6 @@ function updateReferences(element, oldId, newId, idPrefix) {
     }
 }
 
-
 async function run() {
   try {
     // Get inputs from action
@@ -96515,31 +96514,55 @@ async function run() {
       }
     }
 
-    // --- Start Change 1: Initialize dynamic bounds ---
-    let overallMinX = Infinity;
-    let overallMinY = Infinity;
-    let overallMaxX = -Infinity;
-    let overallMaxY = -Infinity;
-    let itemsProcessed = 0; // Keep track if any items were successfully processed
-    // --- End Change 1 ---
+    // Define the specific background dimensions 
+    const bgMinX = -150;
+    const bgMaxX = 1050;
+    const bgMinY = 0;
+    const bgMaxY = 600;
+    const bgWidth = bgMaxX - bgMinX;
+    const bgHeight = bgMaxY - bgMinY;
 
-    // Create the root SVG structure (without dimensions initially)
+    // Calculate SVG viewBox based on the background dimensions
+    // This ensures the entire background is visible
+    const viewBoxMinX = bgMinX;
+    const viewBoxMinY = bgMinY;
+    const viewBoxWidth = bgWidth;
+    const viewBoxHeight = bgHeight;
+
+    // Create the root SVG with calculated viewBox and dimensions
     const rootSvg = parser.parseFromString(
-      `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"></svg>`,
+      `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+            width="${viewBoxWidth}" height="${viewBoxHeight}" 
+            viewBox="${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}">
+      </svg>`,
       'image/svg+xml'
     );
+    
     const rootElement = rootSvg.documentElement;
     let rootDefs = null; // Initialize root defs element reference
+
+    // Add white background as the first element
+    // This background covers exactly the specified range
+    const backgroundRect = rootSvg.createElement('rect');
+    backgroundRect.setAttribute('x', bgMinX.toString());
+    backgroundRect.setAttribute('y', bgMinY.toString());
+    backgroundRect.setAttribute('width', bgWidth.toString());
+    backgroundRect.setAttribute('height', bgHeight.toString());
+    backgroundRect.setAttribute('fill', 'white');
+    rootElement.appendChild(backgroundRect);
+    
+    let itemsProcessed = 0; // Keep track if any items were successfully processed
 
     // Process each layout item
     for (const item of layout) {
       try {
-        // --- Start Change 2: Validate item structure ---
-        if (typeof item.x !== 'number' || typeof item.y !== 'number' || typeof item.width !== 'number' || typeof item.height !== 'number' || typeof item.url !== 'string') {
+        // Validate item structure
+        if (typeof item.x !== 'number' || typeof item.y !== 'number' || 
+            typeof item.width !== 'number' || typeof item.height !== 'number' || 
+            typeof item.url !== 'string') {
             core.warning(`Skipping invalid layout item (missing x, y, width, height, or url): ${JSON.stringify(item)}`);
             continue; // Skip this item
         }
-        // --- End Change 2 ---
 
         let content;
         let isInlineSvg = false;
@@ -96609,7 +96632,7 @@ async function run() {
           } else {
             // For images, convert to base64
             const base64 = fileContent.toString('base64');
-             // Determine mime type more robustly
+            // Determine mime type more robustly
             const ext = external_path_.extname(imagePath).toLowerCase().substring(1);
             const mimeType = `image/${ext === 'jpg' ? 'jpeg' : ext || 'png'}`; // Default to png
             content = `data:${mimeType};base64,${base64}`;
@@ -96620,25 +96643,31 @@ async function run() {
 
         // Process content based on type
         if (isInlineSvg) {
+          // Parse SVG content
           // Check if the content starts with XML declaration and remove it if needed
           if (content.trim().startsWith('<?xml')) {
-            content = content.substring(content.indexOf('<svg'));
+            content = content.substring(content.indexOf('?>') + 2).trim();
+          }
+          
+          // Make sure content starts with <svg tag
+          if (!content.trim().startsWith('<svg')) {
+            throw new Error(`Invalid SVG content from ${item.url}: Does not start with <svg> tag`);
           }
 
-          // Parse SVG content
           const svgDoc = parser.parseFromString(content, 'image/svg+xml');
           const svgElement = svgDoc.documentElement;
 
-          if (!svgElement || svgElement.nodeName !== 'svg') {
-            throw new Error(`Invalid SVG content from ${item.url}`);
-          }
-
-          // Get SVG dimensions for scaling
-          let sourceSvgWidth, sourceSvgHeight;
+          // Determine source SVG dimensions
+          let sourceSvgWidth = null;
+          let sourceSvgHeight = null;
           let viewBox = null;
 
+          // Try to get dimensions from viewBox
           if (svgElement.hasAttribute('viewBox')) {
-            viewBox = svgElement.getAttribute('viewBox').split(/[\s,]+/).map(Number);
+            viewBox = svgElement.getAttribute('viewBox')
+              .split(/[\s,]+/) // Split by whitespace or commas
+              .map(parseFloat); // Convert to numbers
+
             if (viewBox.length === 4 && viewBox[2] > 0 && viewBox[3] > 0) {
                 sourceSvgWidth = viewBox[2];
                 sourceSvgHeight = viewBox[3];
@@ -96667,7 +96696,6 @@ async function run() {
               sourceSvgHeight = item.height;
               core.warning(`Could not determine source height for SVG from ${item.url}. Using layout height: ${item.height}`);
           }
-
 
           // Create a group element to contain the SVG content with proper positioning
           const group = rootSvg.createElement('g');
@@ -96742,174 +96770,109 @@ async function run() {
                     if (originalId && newId) {
                         updateReferences(svgElement, originalId, newId, idPrefix); // Update references in the source before cloning children
                     }
-                } else if (node.nodeType === 3 && node.nodeValue.trim()) { // TEXT_NODE (e.g., inside <style>)
-                    // Clone text nodes too, especially within <style> in <defs>
-                    rootDefs.appendChild(node.cloneNode(true));
-                } else if (node.nodeType === 8) { // COMMENT_NODE
-                    // Optionally preserve comments
-                    rootDefs.appendChild(node.cloneNode(true));
                 }
               }
             }
           }
 
-          // Copy all children of the source SVG to our group (except defs which we already processed)
+          // Copy all child elements excluding defs (those were already processed)
           for (let i = 0; i < svgElement.childNodes.length; i++) {
             const node = svgElement.childNodes[i];
-            // Skip defs, and also skip empty text nodes
-            if (node.nodeName !== 'defs' && !(node.nodeType === 3 && !node.nodeValue.trim())) {
+            if (node.nodeName.toLowerCase() !== 'defs') {
               group.appendChild(node.cloneNode(true));
             }
           }
 
           rootElement.appendChild(group);
-
-        } else {
-          // Handle image elements
+        } else if (item.type === 'image' || item.type.match(/^(png|jpg|jpeg|gif)$/)) {
+          // Create image element
           const imageElement = rootSvg.createElement('image');
-          imageElement.setAttribute('x', String(item.x)); // Ensure attributes are strings
-          imageElement.setAttribute('y', String(item.y));
-          imageElement.setAttribute('width', String(item.width));
-          imageElement.setAttribute('height', String(item.height));
-          imageElement.setAttribute('href', content); // Use href for SVG 1.1+, xlink:href is legacy
-
+          imageElement.setAttribute('x', item.x.toString());
+          imageElement.setAttribute('y', item.y.toString());
+          imageElement.setAttribute('width', item.width.toString());
+          imageElement.setAttribute('height', item.height.toString());
+          imageElement.setAttribute('href', content);
+          
           rootElement.appendChild(imageElement);
         }
 
-        // --- Start Change 3: Update overall bounds ---
-        overallMinX = Math.min(overallMinX, item.x);
-        overallMinY = Math.min(overallMinY, item.y);
-        overallMaxX = Math.max(overallMaxX, item.x + item.width);
-        overallMaxY = Math.max(overallMaxY, item.y + item.height);
         itemsProcessed++;
-        // --- End Change 3 ---
-
       } catch (error) {
-        core.warning(`Error processing item ${item.id ? `(id: ${item.id})` : ''} from ${item.url}: ${error.message}`);
-        // Continue with other items rather than failing completely
+        core.warning(`Error processing item ${JSON.stringify(item)}: ${error.message}`);
       }
     }
 
-    // --- Start Change 4: Calculate final dimensions and set SVG attributes ---
-    let finalMinX, finalMinY, finalWidth, finalHeight;
-
     if (itemsProcessed === 0) {
-        // Handle the case with no items or only failed items
-        finalMinX = 0;
-        finalMinY = 0;
-        finalWidth = 100; // Default size
-        finalHeight = 100; // Default size
-        core.warning("Layout was empty or all items failed to process. Using default SVG bounds (0 0 100 100).");
-    } else {
-        finalMinX = overallMinX;
-        finalMinY = overallMinY;
-        finalWidth = overallMaxX - overallMinX;
-        finalHeight = overallMaxY - overallMinY;
-
-        // Ensure width/height are not zero or negative if items have zero dimensions or overlap perfectly
-        if (finalWidth <= 0) finalWidth = 1;
-        if (finalHeight <= 0) finalHeight = 1;
+      core.setFailed('No valid layout items were processed. Check your layout JSON and asset files.');
+      return;
     }
-
-    // Set the calculated dimensions and viewBox on the root SVG element
-    rootElement.setAttribute('width', String(finalWidth));
-    rootElement.setAttribute('height', String(finalHeight));
-    rootElement.setAttribute('viewBox', `${finalMinX} ${finalMinY} ${finalWidth} ${finalHeight}`);
-    // --- End Change 4 ---
-
-
+    
     // Serialize the merged SVG
-    let mergedSvgString = serializer.serializeToString(rootSvg);
-
-    // Write merged SVG to temporary file (optional, for debugging)
-    // await fs.writeFile('merged_debug.svg', mergedSvgString);
-
-    // Optimize SVG with SVGO but preserve animations and structure
+    const mergedSvgString = serializer.serializeToString(rootSvg);
+    
+    // Write merged SVG to temporary file
+    await external_fs_.promises.writeFile('merged.svg', mergedSvgString);
+    
+    // Optimize SVG with SVGO but preserve animations
     core.info('Optimizing SVG with SVGO...');
-    const svgoOptions = {
-        plugins: [
-            {
-                name: 'preset-default',
-                params: {
-                    overrides: {
-                        // Preserve structure and attributes needed for layout and animations
-                        removeViewBox: false, // Keep the calculated viewBox
-                        cleanupIDs: false, // Keep our prefixed IDs
-                        collapseGroups: false, // Keep groups for positioning/scaling
-                        moveElemsAttrsToGroup: false,
-                        moveGroupAttrsToElems: false,
-                        mergePaths: false, // Merging can break complex SVGs
-                        convertShapeToPath: { convertArcs: true }, // Usually safe, convertArcs helps consistency
-                        removeUnknownsAndDefaults: { // Be careful with defaults
-                            keepRoleAttr: true,
-                            keepDataAttrs: true, // Keep data-* attributes
-                        },
-                        removeUselessDefs: false, // Defs might be referenced dynamically or by CSS
-                        removeHiddenElems: false, // Might be used for animation states
-                        removeEmptyAttrs: false, // Empty attrs might be placeholders
-                        removeEmptyContainers: false, // Keep structure
-                        removeNonInheritableGroupAttrs: false, // Keep attributes like 'transform'
-                        // Animation related preservation
-                        inlineStyles: false, // Keep <style> elements if present
-                        minifyStyles: false, // Don't minify <style> content
-                    },
-                },
+    const optimizedSvg = (0,svgo_node/* optimize */.k)(mergedSvgString, {
+      multipass: true,
+      plugins: [
+        {
+          name: 'preset-default',
+          params: {
+            overrides: {
+              // Disable plugins that might break animations or layout
+              removeViewBox: false,
+              removeHiddenElems: false,
+              removeUselessDefs: false,
+              convertShapeToPath: false,
+              moveElemsAttrsToGroup: false,
+              moveGroupAttrsToElems: false,
+              collapseGroups: false,
+              convertPathData: false,
+              removeEmptyAttrs: false,
+              removeEmptyContainers: false,
+              mergePaths: false,
+              removeUnknownsAndDefaults: false,
+              removeNonInheritableGroupAttrs: false,
+              // Critical for animations
+              inlineStyles: false,
+              minifyStyles: false,
+              cleanupIDs: false
             },
-            // Add specific plugins if needed, e.g., removeComments, removeMetadata
-            'removeComments',
-            'removeMetadata',
-            // 'sortAttrs', // Generally safe
-        ],
-        // Important for preserving xmlns:xlink if used by older SVGs/tools
-        multipass: true, // Run multiple passes for better optimization
-    };
-
-    const optimizedSvg = (0,svgo_node/* optimize */.k)(mergedSvgString, svgoOptions);
-
-    if (optimizedSvg.error) {
-        core.warning(`SVGO optimization failed: ${optimizedSvg.error}`);
-        // Fallback to using the unoptimized SVG string if optimization fails
-        await external_fs_.promises.writeFile('README.svg', mergedSvgString);
-        core.warning('Using unoptimized SVG due to SVGO error.');
-    } else {
-        await external_fs_.promises.writeFile('README.svg', optimizedSvg.data);
-    }
-
-
+          },
+        },
+      ],
+    });
+    
+    // Write optimized SVG to README.svg
+    await external_fs_.promises.writeFile('README.svg', optimizedSvg.data);
+    
     // Configure git user
-    await exec.exec('git', ['config', 'user.name', 'github-actions[bot]']); // Standard bot name
-    await exec.exec('git', ['config', 'user.email', 'github-actions[bot]@users.noreply.github.com']); // Standard bot email
-
+    await exec.exec('git', ['config', 'user.name', 'GitHub Action']);
+    await exec.exec('git', ['config', 'user.email', 'action@github.com']);
+    
     // Check if there are changes to commit
-    // Use 'git status --porcelain' for a more reliable check
-    let gitStatusOutput = '';
-    const options = { listeners: { stdout: (data) => { gitStatusOutput += data.toString(); } } };
-    await exec.exec('git', ['status', '--porcelain', 'README.svg'], options);
-
-
-    if (gitStatusOutput.includes('README.svg')) {
+    const { exitCode } = await exec.exec('git', ['diff', '--quiet', 'README.svg'], { ignoreReturnCode: true });
+    
+    if (exitCode !== 0) {
       // Changes detected, commit and push
-      core.info('Changes detected in README.svg. Committing and pushing...');
       await exec.exec('git', ['add', 'README.svg']);
-      // Use a standard commit message format
-      await exec.exec('git', ['commit', '-m', 'ci: update profile SVG [skip ci]']); // Add [skip ci] to prevent triggering workflows again
-
-      // Set up the remote repository URL securely
-      const context = github.context;
-      const repositoryUrl = `https://x-access-token:${token}@github.com/${context.repo.owner}/${context.repo.repo}.git`;
-      const branch = context.ref.startsWith('refs/heads/') ? context.ref.substring(11) : 'main'; // Get current branch or default to main
-
-      await exec.exec('git', ['push', repositoryUrl, `HEAD:${branch}`]); // Push to the current branch
-
-      core.info(`Successfully committed and pushed updated README.svg to branch ${branch}`);
+      await exec.exec('git', ['commit', '-m', 'ci: update merged profile SVG']);
+      
+      // Set up the remote repository
+      const repository = `https://x-access-token:${token}@github.com/${process.env.GITHUB_REPOSITORY}.git`;
+      await exec.exec('git', ['push', repository]);
+      
+      core.info('Successfully committed and pushed updated README.svg');
     } else {
-      core.info('No changes detected in README.svg. Nothing to commit.');
+      core.info('No changes to commit');
     }
-
+    
   } catch (error) {
-    core.setFailed(`Action failed: ${error.message}\n${error.stack}`);
+    core.setFailed(`Action failed: ${error.message}`);
   }
 }
 
 run();
-
