@@ -1,4 +1,64 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="600" viewBox="-150 0 1200 600"><g transform="translate(-96.22974046204877, -20.670062033716064) scale(0.9818181818181818, 1.2974358974358975)" fill="none" role="img" aria-labelledby="descId">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="600" viewBox="-150 0 1200 600"><defs><linearGradient id="bf3b060f_1d4c_4e7c_8a28_7234f6567321_def0_SECRET" gradientTransform="rotate(45)">
+    
+    <stop offset="0%" stop-color="#e06c75"/>
+    <stop offset="50%" stop-color="#c678dd"/>
+    <stop offset="100%" stop-color="#61afef"/>
+    
+    </linearGradient><linearGradient id="bf3b060f_1d4c_4e7c_8a28_7234f6567321_def1_AAA" gradientTransform="rotate(45)">
+    
+    <stop offset="0%" stop-color="#56b6c2"/>
+    <stop offset="70%" stop-color="#56b6c2"/>
+    <stop offset="100%" stop-color="#56b6c2"/>
+    
+    </linearGradient><linearGradient id="bf3b060f_1d4c_4e7c_8a28_7234f6567321_def2_AA" gradientTransform="rotate(45)">
+    
+    <stop offset="0%" stop-color="#56b6c2"/>
+    <stop offset="70%" stop-color="#56b6c2"/>
+    <stop offset="100%" stop-color="#56b6c2"/>
+    
+    </linearGradient><linearGradient id="bf3b060f_1d4c_4e7c_8a28_7234f6567321_def3_AA" gradientTransform="rotate(45)">
+    
+    <stop offset="0%" stop-color="#56b6c2"/>
+    <stop offset="70%" stop-color="#56b6c2"/>
+    <stop offset="100%" stop-color="#56b6c2"/>
+    
+    </linearGradient><linearGradient id="bf3b060f_1d4c_4e7c_8a28_7234f6567321_def4_AA" gradientTransform="rotate(45)">
+    
+    <stop offset="0%" stop-color="#56b6c2"/>
+    <stop offset="70%" stop-color="#56b6c2"/>
+    <stop offset="100%" stop-color="#56b6c2"/>
+    
+    </linearGradient><linearGradient id="bf3b060f_1d4c_4e7c_8a28_7234f6567321_def5_A" gradientTransform="rotate(45)">
+    
+    <stop offset="0%" stop-color="#56b6c2"/>
+    <stop offset="70%" stop-color="#56b6c2"/>
+    <stop offset="100%" stop-color="#56b6c2"/>
+    
+    </linearGradient><linearGradient id="bf3b060f_1d4c_4e7c_8a28_7234f6567321_def6_B" gradientTransform="rotate(45)">
+    
+    <stop offset="0%" stop-color="#c678dd"/>
+    <stop offset="70%" stop-color="#c678dd"/>
+    <stop offset="100%" stop-color="#c678dd"/>
+    
+    </linearGradient><linearGradient id="bf3b060f_1d4c_4e7c_8a28_7234f6567321_def7_B" gradientTransform="rotate(45)">
+    
+    <stop offset="0%" stop-color="#c678dd"/>
+    <stop offset="70%" stop-color="#c678dd"/>
+    <stop offset="100%" stop-color="#c678dd"/>
+    
+    </linearGradient><linearGradient id="bf3b060f_1d4c_4e7c_8a28_7234f6567321_def8_C" gradientTransform="rotate(45)">
+    
+      <stop offset="0%" stop-color="#abb2bf"/>
+      <stop offset="50%" stop-color="#abb2bf"/>
+      <stop offset="100%" stop-color="#abb2bf"/>
+  
+    </linearGradient><clipPath id="8e898692_ced9_4874_a2d2_10df2f969405_def0_outer_rectangle">
+                <rect width="495" height="195" rx="10"/>
+            </clipPath><mask id="8e898692_ced9_4874_a2d2_10df2f969405_def0_mask_out_ring_behind_fire">
+                <rect width="495" height="195" fill="white"/>
+                <ellipse id="mask-ellipse" cx="247.5" cy="32" rx="13" ry="18" fill="black"/>
+            </mask></defs>
+      <rect x="-150" y="0" width="1200" height="600" fill="white"/><g transform="translate(-96.22974046204877, -20.670062033716064) scale(0.9818181818181818, 1.2974358974358975)" viewBox="0 0 495 195" fill="none" role="img" aria-labelledby="descId">
         <title id="titleId">whiteSHADOW1234's GitHub Stats, Rank: A+</title>
         <desc id="descId">Total Stars Earned: 94, Total Commits in 2025 : 94, Total PRs: 17, Total Issues: 5, Contributed to (last year): 3</desc>
         <style>
@@ -58,7 +118,7 @@
         stroke-dashoffset: 251.32741228718345;
       }
       to {
-        stroke-dashoffset: 123.58041431660381;
+        stroke-dashoffset: 123.62337615945967;
       }
     }
   
@@ -128,7 +188,7 @@
     </svg>
   
       <text class="stat  bold" x="25" y="12.5">Total Commits (2025):</text>
-      <text class="stat  bold" x="219.01" y="12.5" data-testid="commits">520</text>
+      <text class="stat  bold" x="219.01" y="12.5" data-testid="commits">514</text>
     </g>
   </g><g transform="translate(0, 50)">
     <g class="stagger" style="animation-delay: 750ms" transform="translate(25, 0)">
@@ -164,7 +224,7 @@
     </svg>
   
         </g>
-      </g><g transform="translate(423, -11) scale(1.36, 1.6928571428571428)" fill="none" role="img" aria-labelledby="descId">
+      </g><g transform="translate(423, -11) scale(1.36, 1.6928571428571428)" viewBox="0 0 350 140" fill="none" role="img" aria-labelledby="descId">
         <title id="titleId"/>
         <desc id="descId"/>
         <style>
@@ -265,88 +325,7 @@
     </svg>
   
         </g>
-      </g><defs>
-    <linearGradient id="item_bf3b060f1d4c4e7c8a287234f6567321_SECRET" gradientTransform="rotate(45)">
-    
-    <stop offset="0%" stop-color="#e06c75"/>
-    <stop offset="50%" stop-color="#c678dd"/>
-    <stop offset="100%" stop-color="#61afef"/>
-    
-    </linearGradient>
-  
-    <linearGradient id="item_bf3b060f1d4c4e7c8a287234f6567321_AAA" gradientTransform="rotate(45)">
-    
-    <stop offset="0%" stop-color="#56b6c2"/>
-    <stop offset="70%" stop-color="#56b6c2"/>
-    <stop offset="100%" stop-color="#56b6c2"/>
-    
-    </linearGradient>
-  
-    <linearGradient id="item_bf3b060f1d4c4e7c8a287234f6567321_AA" gradientTransform="rotate(45)">
-    
-    <stop offset="0%" stop-color="#56b6c2"/>
-    <stop offset="70%" stop-color="#56b6c2"/>
-    <stop offset="100%" stop-color="#56b6c2"/>
-    
-    </linearGradient>
-  
-    <linearGradient id="item_bf3b060f1d4c4e7c8a287234f6567321_AA" gradientTransform="rotate(45)">
-    
-    <stop offset="0%" stop-color="#56b6c2"/>
-    <stop offset="70%" stop-color="#56b6c2"/>
-    <stop offset="100%" stop-color="#56b6c2"/>
-    
-    </linearGradient>
-  
-    <linearGradient id="item_bf3b060f1d4c4e7c8a287234f6567321_AA" gradientTransform="rotate(45)">
-    
-    <stop offset="0%" stop-color="#56b6c2"/>
-    <stop offset="70%" stop-color="#56b6c2"/>
-    <stop offset="100%" stop-color="#56b6c2"/>
-    
-    </linearGradient>
-  
-    <linearGradient id="item_bf3b060f1d4c4e7c8a287234f6567321_A" gradientTransform="rotate(45)">
-    
-    <stop offset="0%" stop-color="#56b6c2"/>
-    <stop offset="70%" stop-color="#56b6c2"/>
-    <stop offset="100%" stop-color="#56b6c2"/>
-    
-    </linearGradient>
-  
-    <linearGradient id="item_bf3b060f1d4c4e7c8a287234f6567321_B" gradientTransform="rotate(45)">
-    
-    <stop offset="0%" stop-color="#c678dd"/>
-    <stop offset="70%" stop-color="#c678dd"/>
-    <stop offset="100%" stop-color="#c678dd"/>
-    
-    </linearGradient>
-  
-    <linearGradient id="item_bf3b060f1d4c4e7c8a287234f6567321_B" gradientTransform="rotate(45)">
-    
-    <stop offset="0%" stop-color="#c678dd"/>
-    <stop offset="70%" stop-color="#c678dd"/>
-    <stop offset="100%" stop-color="#c678dd"/>
-    
-    </linearGradient>
-  
-    <linearGradient id="item_bf3b060f1d4c4e7c8a287234f6567321_C" gradientTransform="rotate(45)">
-    
-      <stop offset="0%" stop-color="#abb2bf"/>
-      <stop offset="50%" stop-color="#abb2bf"/>
-      <stop offset="100%" stop-color="#abb2bf"/>
-  
-    </linearGradient>
-  
-            <clipPath id="item_8e898692ced94874a2d210df2f969405_outer_rectangle">
-                <rect width="495" height="195" rx="10"/>
-            </clipPath>
-            <mask id="item_8e898692ced94874a2d210df2f969405_mask_out_ring_behind_fire">
-                <rect width="495" height="195" fill="white"/>
-                <ellipse id="mask-ellipse" cx="247.5" cy="32" rx="13" ry="18" fill="black"/>
-            </mask>
-            
-        </defs><g transform="translate(-2, 214) scale(0.9352272727272727, 0.8909090909090909)" fill="none">
+      </g><g transform="translate(-2, 214) scale(0.9352272727272727, 0.8909090909090909)" viewBox="0 0 880 110" fill="none">
       
         <svg x="0" y="0" width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="0.5" y="0.5" rx="4.5" width="109" height="109" stroke="#e1e4e8" fill="#282c34" stroke-opacity="1" fill-opacity="1"/>
@@ -362,7 +341,7 @@
     
     </linearGradient>
   </defs>
-  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#item_bf3b060f1d4c4e7c8a287234f6567321_SECRET)" xmlns="http://www.w3.org/2000/svg">
+  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#bf3b060f_1d4c_4e7c_8a28_7234f6567321_def0_SECRET)" xmlns="http://www.w3.org/2000/svg">
     
     <path d="M7 10h2v4H7v-4z"/>
     <path d="M10 11c0 .552-.895 1-2 1s-2-.448-2-1 .895-1 2-1 2 .448 2 1z"/>
@@ -448,7 +427,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     
     </linearGradient>
   </defs>
-  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#item_bf3b060f1d4c4e7c8a287234f6567321_AAA)" xmlns="http://www.w3.org/2000/svg">
+  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#bf3b060f_1d4c_4e7c_8a28_7234f6567321_def1_AAA)" xmlns="http://www.w3.org/2000/svg">
     
     <path d="M7 10h2v4H7v-4z"/>
     <path d="M10 11c0 .552-.895 1-2 1s-2-.448-2-1 .895-1 2-1 2 .448 2 1z"/>
@@ -461,7 +440,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
   
           <text x="50%" y="18" text-anchor="middle" font-family="Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji" font-weight="bold" font-size="13" fill="#e5c07b">Commits</text>
           <text x="50%" y="85" text-anchor="middle" font-family="Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji" font-weight="bold" font-size="10.5" fill="#e06c75">Ultra Committer</text>
-          <text x="50%" y="97" text-anchor="middle" font-family="Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji" font-weight="bold" font-size="10" fill="#e06c75">510pt</text>
+          <text x="50%" y="97" text-anchor="middle" font-family="Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji" font-weight="bold" font-size="10" fill="#e06c75">526pt</text>
           
     <style>
     @keyframes CommitsRankAnimation {
@@ -469,7 +448,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
         width: 0px;
       }
       to {
-        width: 1.6px;
+        width: 4.16px;
       }
     }
     #Commits-rank-progress{
@@ -525,7 +504,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     
     </linearGradient>
   </defs>
-  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#item_bf3b060f1d4c4e7c8a287234f6567321_AA)" xmlns="http://www.w3.org/2000/svg">
+  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#bf3b060f_1d4c_4e7c_8a28_7234f6567321_def2_AA)" xmlns="http://www.w3.org/2000/svg">
     
     <path d="M7 10h2v4H7v-4z"/>
     <path d="M10 11c0 .552-.895 1-2 1s-2-.448-2-1 .895-1 2-1 2 .448 2 1z"/>
@@ -538,7 +517,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
   
           <text x="50%" y="18" text-anchor="middle" font-family="Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji" font-weight="bold" font-size="13" fill="#e5c07b">Stars</text>
           <text x="50%" y="85" text-anchor="middle" font-family="Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji" font-weight="bold" font-size="10.5" fill="#e06c75">High Star</text>
-          <text x="50%" y="97" text-anchor="middle" font-family="Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji" font-weight="bold" font-size="10" fill="#e06c75">94pt</text>
+          <text x="50%" y="97" text-anchor="middle" font-family="Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji" font-weight="bold" font-size="10" fill="#e06c75">95pt</text>
           
     <style>
     @keyframes StarsRankAnimation {
@@ -546,7 +525,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
         width: 0px;
       }
       to {
-        width: 70.4px;
+        width: 72px;
       }
     }
     #Stars-rank-progress{
@@ -602,7 +581,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     
     </linearGradient>
   </defs>
-  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#item_bf3b060f1d4c4e7c8a287234f6567321_AA)" xmlns="http://www.w3.org/2000/svg">
+  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#bf3b060f_1d4c_4e7c_8a28_7234f6567321_def2_AA)" xmlns="http://www.w3.org/2000/svg">
     
     <path d="M7 10h2v4H7v-4z"/>
     <path d="M10 11c0 .552-.895 1-2 1s-2-.448-2-1 .895-1 2-1 2 .448 2 1z"/>
@@ -679,7 +658,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     
     </linearGradient>
   </defs>
-  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#item_bf3b060f1d4c4e7c8a287234f6567321_AA)" xmlns="http://www.w3.org/2000/svg">
+  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#bf3b060f_1d4c_4e7c_8a28_7234f6567321_def2_AA)" xmlns="http://www.w3.org/2000/svg">
     
     <path d="M7 10h2v4H7v-4z"/>
     <path d="M10 11c0 .552-.895 1-2 1s-2-.448-2-1 .895-1 2-1 2 .448 2 1z"/>
@@ -747,7 +726,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     
     </linearGradient>
   </defs>
-  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#item_bf3b060f1d4c4e7c8a287234f6567321_A)" xmlns="http://www.w3.org/2000/svg">
+  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#bf3b060f_1d4c_4e7c_8a28_7234f6567321_def5_A)" xmlns="http://www.w3.org/2000/svg">
     
     <path d="M7 10h2v4H7v-4z"/>
     <path d="M10 11c0 .552-.895 1-2 1s-2-.448-2-1 .895-1 2-1 2 .448 2 1z"/>
@@ -794,7 +773,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     
     </linearGradient>
   </defs>
-  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#item_bf3b060f1d4c4e7c8a287234f6567321_B)" xmlns="http://www.w3.org/2000/svg">
+  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#bf3b060f_1d4c_4e7c_8a28_7234f6567321_def6_B)" xmlns="http://www.w3.org/2000/svg">
     
     <path d="M7 10h2v4H7v-4z"/>
     <path d="M10 11c0 .552-.895 1-2 1s-2-.448-2-1 .895-1 2-1 2 .448 2 1z"/>
@@ -841,7 +820,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     
     </linearGradient>
   </defs>
-  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#item_bf3b060f1d4c4e7c8a287234f6567321_B)" xmlns="http://www.w3.org/2000/svg">
+  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#bf3b060f_1d4c_4e7c_8a28_7234f6567321_def6_B)" xmlns="http://www.w3.org/2000/svg">
     
     <path d="M7 10h2v4H7v-4z"/>
     <path d="M10 11c0 .552-.895 1-2 1s-2-.448-2-1 .895-1 2-1 2 .448 2 1z"/>
@@ -888,7 +867,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
   
     </linearGradient>
   </defs>
-  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#item_bf3b060f1d4c4e7c8a287234f6567321_C)" xmlns="http://www.w3.org/2000/svg">
+  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#bf3b060f_1d4c_4e7c_8a28_7234f6567321_def8_C)" xmlns="http://www.w3.org/2000/svg">
     
     <path d="M7 10h2v4H7v-4z"/>
     <path d="M10 11c0 .552-.895 1-2 1s-2-.448-2-1 .895-1 2-1 2 .448 2 1z"/>
@@ -921,7 +900,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
   
         </svg>
         
-    </g><g transform="translate(80, 325) scale(1.290909090909091, 1.1435897435897435)" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation: isolate" direction="ltr">
+    </g><g transform="translate(80, 325) scale(1.290909090909091, 1.1435897435897435)" style="isolation: isolate" viewBox="0 0 495 195" direction="ltr">
         <style>
             @keyframes currstreak {
                 0% { font-size: 3px; opacity: 0.2; }
@@ -946,7 +925,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
                 <!-- Total Contributions big number -->
                 <g transform="translate(82.5, 48)">
                     <text x="0" y="32" stroke-width="0" text-anchor="middle" fill="#70A5FD" stroke="none" font-family="&quot;Segoe UI&quot;, Ubuntu, sans-serif" font-weight="700" font-size="28px" font-style="normal" style="opacity: 0; animation: fadein 0.5s linear forwards 0.6s">
-                        1,202
+                        1,206
                     </text>
                 </g>
 
@@ -1021,7 +1000,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
             </g>
             
         </g>
-    </g><g transform="translate(-112.45271176966187, 300) scale(0.5405405405405406, 0.539568345323741)" fill="none">
+    </g><g transform="translate(-112.45271176966187, 300) scale(0.5405405405405406, 0.539568345323741)" viewBox="0 0 555 556" fill="none">
 <rect x="19" y="537" width="390" height="6" transform="rotate(-90 19 537)" fill="#BD0909"/>
 <rect y="555" width="555" height="13" transform="rotate(-90 0 555)" fill="#BD0909"/>
 <rect x="19" y="449" width="7" height="22" transform="rotate(-90 19 449)" fill="#BD0909"/>
@@ -1074,7 +1053,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
 <rect width="14" height="4" transform="matrix(1 0 0 -1 173 527)" fill="#BD0909"/>
 <rect width="18" height="8" transform="matrix(0 1 1 0 173 509)" fill="#BD0909"/>
 <rect width="16" height="4" transform="matrix(0 1 1 0 194 510)" fill="#BD0909"/>
-</g><g transform="translate(600.2567397548477, 300) scale(0.5405405405405406, 0.539568345323741)" fill="none">
+</g><g transform="translate(600.2567397548477, 300) scale(0.5405405405405406, 0.539568345323741)" viewBox="0 0 555 556" fill="none">
 <rect width="390" height="6" transform="matrix(0 -1 -1 0 536 537)" fill="#BD0909"/>
 <rect width="555" height="13" transform="matrix(0 -1 -1 0 555 555)" fill="#BD0909"/>
 <rect width="7" height="22" transform="matrix(0 -1 -1 0 536 449)" fill="#BD0909"/>
