@@ -7,6 +7,8 @@ This GitHub Action automatically composes multiple SVGs and images (from URLs or
 
 ![Screenshot of the Profile Board Website](screenshot.png)
 
+<img src="https://whiteshadow1234.github.io/profileBoard/merged.svg"  alt="Animated Profile Board" />
+
 [Rendered link for the generated SVG using this GitHub Action](https://www.svgviewer.dev/s/zuCi5j1p)
 
 ## 🤔 Why Use This Action?
