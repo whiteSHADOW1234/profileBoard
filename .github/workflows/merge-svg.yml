@@ -12,7 +12,7 @@ jobs:
   merge-svg:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # needed to push changes back
+      contents: write  # allow pushing back to the repo
 
     steps:
       - name: Checkout repository
@@ -21,7 +21,7 @@ jobs:
           persist-credentials: true
 
       - name: Merge SVG Components
-        uses: ./            # your local Action
+        uses: ./           # your local Action
         with:
           layout: |
             [
@@ -83,15 +83,15 @@ jobs:
           assets: "images/*.svg,images/*.png"
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Prepare Pages folder
+      - name: Copy merged.svg to public folder
         run: |
-          mkdir -p docs
-          cp merged.svg docs/merged.svg   # copy merged SVG into docs/ for Pages :contentReference[oaicite:0]{index=0}
+          mkdir -p public
+          cp merged.svg public/merged.svg   # place SVG in public/ for Vercel to serve :contentReference[oaicite:0]{index=0}
 
       - name: Commit and push updated SVG
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/merged.svg
-          git commit -m "ci: update merged.svg for GitHub Pages" || echo "No changes to commit"
+          git add public/merged.svg
+          git commit -m "ci: update merged.svg for Vercel hosting" || echo "No changes to commit"
           git push
