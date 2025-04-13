@@ -6,20 +6,22 @@ on:
     paths:
       - 'images/**'
       - 'layout.json'
-  workflow_dispatch:  # Allow manual triggering
+  workflow_dispatch:
 
 jobs:
   merge-svg:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Needed to push changes back to the repo
-    
+      contents: write  # needed to push changes back
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+        with:
+          persist-credentials: true
+
       - name: Merge SVG Components
-        uses: ./  # Use local action
+        uses: ./            # your local Action
         with:
           layout: |
             [
@@ -80,3 +82,16 @@ jobs:
             ]
           assets: "images/*.svg,images/*.png"
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare Pages folder
+        run: |
+          mkdir -p docs
+          cp merged.svg docs/merged.svg   # copy merged SVG into docs/ for Pages :contentReference[oaicite:0]{index=0}
+
+      - name: Commit and push updated SVG
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/merged.svg
+          git commit -m "ci: update merged.svg for GitHub Pages" || echo "No changes to commit"
+          git push
