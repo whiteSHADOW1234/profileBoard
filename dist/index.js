@@ -96431,59 +96431,13 @@ var dom_parser = __nccwpck_require__(83503);
 
 
 
-// Helper function to update ID references in the SVG content
-function updateReferences(element, oldId, newId, idPrefix) {
-    const prefixedOldId = idPrefix + oldId; // Use the same prefixing logic as when creating new IDs
-
-    // Process url(#id) references in style attributes
-    if (element.hasAttribute('style')) {
-        const style = element.getAttribute('style');
-        // Check for both original and potentially already prefixed IDs if nested
-        if (style.includes(`url(#${oldId})`)) {
-            element.setAttribute('style', style.replace(new RegExp(`url\\(#${oldId}\\)`, 'g'), `url(#${newId})`));
-        } else if (style.includes(`url(#${prefixedOldId})`)) {
-             element.setAttribute('style', style.replace(new RegExp(`url\\(#${prefixedOldId}\\)`, 'g'), `url(#${newId})`));
-        }
-    }
-
-    // Process href and xlink:href attributes
-    const hrefAttr = element.getAttribute('href');
-    const xlinkHrefAttr = element.getAttribute('xlink:href');
-
-    if (hrefAttr === `#${oldId}` || hrefAttr === `#${prefixedOldId}`) {
-        element.setAttribute('href', `#${newId}`);
-    }
-    if (xlinkHrefAttr === `#${oldId}` || xlinkHrefAttr === `#${prefixedOldId}`) {
-        element.setAttribute('xlink:href', `#${newId}`);
-    }
-
-    // Process fill and stroke attributes referencing URLs
-    const fillAttr = element.getAttribute('fill');
-    const strokeAttr = element.getAttribute('stroke');
-
-    if (fillAttr === `url(#${oldId})` || fillAttr === `url(#${prefixedOldId})`) {
-        element.setAttribute('fill', `url(#${newId})`);
-    }
-    if (strokeAttr === `url(#${oldId})` || strokeAttr === `url(#${prefixedOldId})`) {
-        element.setAttribute('stroke', `url(#${newId})`);
-    }
-
-    // Recursively process child elements
-    for (let i = 0; i < element.childNodes.length; i++) {
-        const child = element.childNodes[i];
-        if (child.nodeType === 1) { // ELEMENT_NODE
-            updateReferences(child, oldId, newId, idPrefix);
-        }
-    }
-}
-
 async function run() {
   try {
     // Get inputs from action
     const layoutInput = core.getInput('layout', { required: true });
     const assetsInput = core.getInput('assets', { required: false }) || 'images/*.svg';
     const token = core.getInput('token', { required: true });
-
+    
     // Parse layout JSON
     let layout;
     try {
@@ -96495,316 +96449,283 @@ async function run() {
       core.setFailed(`Invalid layout JSON: ${error.message}`);
       return;
     }
-
+    
     // Initialize parser and serializer
     const parser = new dom_parser/* DOMParser */.S();
     const serializer = new dom_parser.XMLSerializer();
-
+    
     // Create a map of asset files for faster lookups
     const assetMap = new Map();
     const assetPatterns = assetsInput.split(',').map(pattern => pattern.trim());
-
+    
     for (const pattern of assetPatterns) {
       const globber = await glob.create(pattern);
       const files = await globber.glob();
-
+      
       for (const file of files) {
         const relativePath = external_path_.relative(process.cwd(), file);
         assetMap.set(relativePath, file);
       }
     }
-
-    // Define the specific background dimensions 
-    const bgMinX = -150;
-    const bgMaxX = 1050;
-    const bgMinY = 0;
-    const bgMaxY = 600;
-    const bgWidth = bgMaxX - bgMinX;
-    const bgHeight = bgMaxY - bgMinY;
-
-    // Calculate SVG viewBox based on the background dimensions
-    // This ensures the entire background is visible
-    const viewBoxMinX = bgMinX;
-    const viewBoxMinY = bgMinY;
-    const viewBoxWidth = bgWidth;
-    const viewBoxHeight = bgHeight;
-
-    // Create the root SVG with calculated viewBox and dimensions
+    
+    // Set fixed dimensions as requested
+    const minX = -150;
+    const maxX = 1050;
+    const minY = 0;
+    const maxY = 600;
+    
+    const svgWidth = maxX - minX;
+    const svgHeight = maxY - minY;
+    
+    // Create the root SVG with fixed dimensions
     const rootSvg = parser.parseFromString(
-      `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
-            width="${viewBoxWidth}" height="${viewBoxHeight}" 
-            viewBox="${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}">
-      </svg>`,
+      `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${svgWidth}" height="${svgHeight}" viewBox="${minX} ${minY} ${svgWidth} ${svgHeight}"></svg>`,
       'image/svg+xml'
     );
     
     const rootElement = rootSvg.documentElement;
-    let rootDefs = null; // Initialize root defs element reference
-
-    // Add white background as the first element
-    // This background covers exactly the specified range
-    const backgroundRect = rootSvg.createElement('rect');
-    backgroundRect.setAttribute('x', bgMinX.toString());
-    backgroundRect.setAttribute('y', bgMinY.toString());
-    backgroundRect.setAttribute('width', bgWidth.toString());
-    backgroundRect.setAttribute('height', bgHeight.toString());
-    backgroundRect.setAttribute('fill', 'white');
-    rootElement.appendChild(backgroundRect);
     
-    let itemsProcessed = 0; // Keep track if any items were successfully processed
-
     // Process each layout item
     for (const item of layout) {
       try {
-        // Validate item structure
-        if (typeof item.x !== 'number' || typeof item.y !== 'number' || 
-            typeof item.width !== 'number' || typeof item.height !== 'number' || 
-            typeof item.url !== 'string') {
-            core.warning(`Skipping invalid layout item (missing x, y, width, height, or url): ${JSON.stringify(item)}`);
-            continue; // Skip this item
-        }
-
         let content;
-        let isInlineSvg = false;
-
+        let isSvg = item.type === 'svg';
+        
         // Handle different URL types
         if (item.url.startsWith('http://') || item.url.startsWith('https://')) {
           // Remote URL - fetch content
           core.info(`Fetching remote URL: ${item.url}`);
           const response = await fetch(item.url);
-
+          
           if (!response.ok) {
             throw new Error(`Failed to fetch ${item.url}: ${response.statusText}`);
           }
-
+          
+          // Check Content-Type header to detect SVG, regardless of the item.type
           const contentType = response.headers.get('content-type');
-
-          // Check if the content is SVG based on response headers or explicit type
-          if ((contentType && contentType.includes('svg')) || item.type === 'svg') {
+          if (contentType && contentType.includes('svg')) {
+            isSvg = true;
+          }
+          
+          if (isSvg) {
+            // Get SVG as text
             content = await response.text();
-            isInlineSvg = true;
           } else {
-            // For images, convert to data URI
+            // For non-SVG images, get binary data
             const buffer = await response.arrayBuffer();
-            const base64 = Buffer.from(buffer).toString('base64');
-            const mimeType = contentType || 'image/png'; // Default to png if not specified
-            content = `data:${mimeType};base64,${base64}`;
+            const imageData = Buffer.from(buffer);
+            
+            // Create image element for non-SVG content
+            const imageElement = rootSvg.createElement('image');
+            imageElement.setAttribute('x', item.x);
+            imageElement.setAttribute('y', item.y);
+            imageElement.setAttribute('width', item.width);
+            imageElement.setAttribute('height', item.height);
+            
+            // Use base64 encoding for the image data
+            const base64 = imageData.toString('base64');
+            const mimeType = contentType || `image/${item.type}` || 'image/png';
+            imageElement.setAttribute('href', `data:${mimeType};base64,${base64}`);
+            
+            rootElement.appendChild(imageElement);
+            continue; // Skip the SVG processing below
           }
         } else if (item.url.startsWith('blob:')) {
           // Local file - read from disk (keeping the blob: prefix for compatibility)
           const filePath = item.url.substring(5); // Remove 'blob:' prefix
           const imagePath = external_path_.join('images', filePath);
-
+          
           core.info(`Reading local file: ${imagePath}`);
-
+          
           if (!assetMap.has(imagePath)) {
             throw new Error(`Local asset not found: ${imagePath}`);
           }
-
+          
           const fileContent = await external_fs_.promises.readFile(assetMap.get(imagePath));
-
-          if (item.type === 'svg') {
+          
+          if (isSvg) {
             content = fileContent.toString('utf8');
-            isInlineSvg = true;
           } else {
-            // For images, convert to base64
+            // For non-SVG images, create an image element
+            const imageElement = rootSvg.createElement('image');
+            imageElement.setAttribute('x', item.x);
+            imageElement.setAttribute('y', item.y);
+            imageElement.setAttribute('width', item.width);
+            imageElement.setAttribute('height', item.height);
+            
+            // Use base64 encoding for the image data
             const base64 = fileContent.toString('base64');
-            // Determine mime type more robustly
-            const ext = external_path_.extname(imagePath).toLowerCase().substring(1);
-            const mimeType = `image/${ext === 'jpg' ? 'jpeg' : ext || 'png'}`; // Default to png
-            content = `data:${mimeType};base64,${base64}`;
+            const mimeType = `image/${item.type}` || 'image/png';
+            imageElement.setAttribute('href', `data:${mimeType};base64,${base64}`);
+            
+            rootElement.appendChild(imageElement);
+            continue; // Skip the SVG processing below
           }
         } else if (item.url.startsWith('images/')) {
           // Direct path to images directory
           const imagePath = item.url;
-
+          
           core.info(`Reading local file: ${imagePath}`);
-
+          
           if (!assetMap.has(imagePath)) {
             throw new Error(`Local asset not found: ${imagePath}`);
           }
-
+          
           const fileContent = await external_fs_.promises.readFile(assetMap.get(imagePath));
-
-          if (item.type === 'svg') {
+          
+          if (isSvg) {
             content = fileContent.toString('utf8');
-            isInlineSvg = true;
           } else {
-            // For images, convert to base64
+            // For non-SVG images, create an image element
+            const imageElement = rootSvg.createElement('image');
+            imageElement.setAttribute('x', item.x);
+            imageElement.setAttribute('y', item.y);
+            imageElement.setAttribute('width', item.width);
+            imageElement.setAttribute('height', item.height);
+            
+            // Use base64 encoding for the image data
             const base64 = fileContent.toString('base64');
-            // Determine mime type more robustly
-            const ext = external_path_.extname(imagePath).toLowerCase().substring(1);
-            const mimeType = `image/${ext === 'jpg' ? 'jpeg' : ext || 'png'}`; // Default to png
-            content = `data:${mimeType};base64,${base64}`;
+            const mimeType = `image/${item.type}` || 'image/png';
+            imageElement.setAttribute('href', `data:${mimeType};base64,${base64}`);
+            
+            rootElement.appendChild(imageElement);
+            continue; // Skip the SVG processing below
           }
         } else {
           throw new Error(`Unsupported URL format: ${item.url}`);
         }
-
-        // Process content based on type
-        if (isInlineSvg) {
-          // Parse SVG content
-          // Check if the content starts with XML declaration and remove it if needed
-          if (content.trim().startsWith('<?xml')) {
-            content = content.substring(content.indexOf('?>') + 2).trim();
+        
+        // Process SVG content
+        if (isSvg) {
+          // Try to detect if the content is already an SVG
+          if (!content.trim().startsWith('<svg') && !content.trim().startsWith('<?xml')) {
+            core.warning(`Content from ${item.url} doesn't appear to be SVG. Treating as image instead.`);
+            
+            // Create an image element as fallback
+            const imageElement = rootSvg.createElement('image');
+            imageElement.setAttribute('x', item.x);
+            imageElement.setAttribute('y', item.y);
+            imageElement.setAttribute('width', item.width);
+            imageElement.setAttribute('height', item.height);
+            imageElement.setAttribute('href', item.url);
+            
+            rootElement.appendChild(imageElement);
+            continue;
           }
           
-          // Make sure content starts with <svg tag
-          if (!content.trim().startsWith('<svg')) {
-            throw new Error(`Invalid SVG content from ${item.url}: Does not start with <svg> tag`);
-          }
-
+          // Parse SVG content
           const svgDoc = parser.parseFromString(content, 'image/svg+xml');
+          
+          // Check for parsing errors
+          const errors = svgDoc.getElementsByTagName('parsererror');
+          if (errors.length > 0) {
+            throw new Error(`Failed to parse SVG from ${item.url}`);
+          }
+          
           const svgElement = svgDoc.documentElement;
-
-          // Determine source SVG dimensions
-          let sourceSvgWidth = null;
-          let sourceSvgHeight = null;
-          let viewBox = null;
-
-          // Try to get dimensions from viewBox
-          if (svgElement.hasAttribute('viewBox')) {
-            viewBox = svgElement.getAttribute('viewBox')
-              .split(/[\s,]+/) // Split by whitespace or commas
-              .map(parseFloat); // Convert to numbers
-
-            if (viewBox.length === 4 && viewBox[2] > 0 && viewBox[3] > 0) {
-                sourceSvgWidth = viewBox[2];
-                sourceSvgHeight = viewBox[3];
-            }
-          }
-
-          // Use width/height attributes if viewBox is missing or invalid
-          if ((!sourceSvgWidth || !sourceSvgHeight) && svgElement.hasAttribute('width') && svgElement.hasAttribute('height')) {
-             const wAttr = svgElement.getAttribute('width');
-             const hAttr = svgElement.getAttribute('height');
-             // Allow unitless numbers or pixel values
-             const wMatch = wAttr.match(/^(\d*\.?\d+)(px)?$/);
-             const hMatch = hAttr.match(/^(\d*\.?\d+)(px)?$/);
-             if (wMatch && hMatch) {
-                sourceSvgWidth = parseFloat(wMatch[1]);
-                sourceSvgHeight = parseFloat(hMatch[1]);
-             }
-          }
-
-          // If dimensions still not found, use the layout item's dimensions as the source dimensions
-          if (!sourceSvgWidth || sourceSvgWidth <= 0) {
-              sourceSvgWidth = item.width;
-              core.warning(`Could not determine source width for SVG from ${item.url}. Using layout width: ${item.width}`);
-          }
-          if (!sourceSvgHeight || sourceSvgHeight <= 0) {
-              sourceSvgHeight = item.height;
-              core.warning(`Could not determine source height for SVG from ${item.url}. Using layout height: ${item.height}`);
-          }
-
-          // Create a group element to contain the SVG content with proper positioning
+          
+          // Create a group to position and scale the SVG
           const group = rootSvg.createElement('g');
-
-          // Determine scaling
-          const scaleX = item.width / sourceSvgWidth;
-          const scaleY = item.height / sourceSvgHeight;
-
-          // Apply transformation for position and scale
-          // Adjust translation if the source SVG had a viewBox offset
-          const translateX = item.x - (viewBox ? viewBox[0] * scaleX : 0);
-          const translateY = item.y - (viewBox ? viewBox[1] * scaleY : 0);
-
-          let transform = `translate(${translateX}, ${translateY})`;
-          if (scaleX !== 1 || scaleY !== 1) {
-            transform += ` scale(${scaleX}, ${scaleY})`;
+          group.setAttribute('transform', `translate(${item.x}, ${item.y})`);
+          
+          // Get SVG dimensions
+          let svgWidth, svgHeight;
+          
+          if (svgElement.hasAttribute('width') && svgElement.hasAttribute('height')) {
+            svgWidth = parseFloat(svgElement.getAttribute('width'));
+            svgHeight = parseFloat(svgElement.getAttribute('height'));
+          } else if (svgElement.hasAttribute('viewBox')) {
+            const viewBox = svgElement.getAttribute('viewBox').split(/[\s,]+/);
+            svgWidth = parseFloat(viewBox[2]);
+            svgHeight = parseFloat(viewBox[3]);
+          } else {
+            // Default dimensions if not specified
+            svgWidth = item.width;
+            svgHeight = item.height;
           }
-          group.setAttribute('transform', transform);
-
-          // Extract and copy all attributes from the source SVG except dimensional/positional ones
-          const attributesToExclude = ['width', 'height', 'viewBox', 'x', 'y', 'xmlns', 'version', 'xmlns:xlink'];
-          for (let i = 0; i < svgElement.attributes.length; i++) {
-            const attr = svgElement.attributes[i];
-            if (!attributesToExclude.includes(attr.name.toLowerCase())) { // Use lowercase for case-insensitivity
-              group.setAttribute(attr.name, attr.value);
+          
+          // Apply scale if necessary
+          if (svgWidth !== item.width || svgHeight !== item.height) {
+            const scaleX = item.width / svgWidth;
+            const scaleY = item.height / svgHeight;
+            group.setAttribute('transform', `translate(${item.x}, ${item.y}) scale(${scaleX}, ${scaleY})`);
+          }
+          
+          // Extract critical attributes from the SVG to preserve animations and styling
+          const svgAttributesToPreserve = [
+            'version', 'baseProfile', 'xmlns', 'xmlns:xlink', 
+            'xmlns:svg', 'xmlns:dc', 'xmlns:cc', 'xmlns:rdf', 
+            'xmlns:sodipodi', 'xmlns:inkscape', 'style', 'class'
+          ];
+          
+          // Copy key namespace definitions and attributes to ensure animations and styling work
+          svgAttributesToPreserve.forEach(attr => {
+            if (svgElement.hasAttribute(attr)) {
+              // Don't copy xmlns attributes to the group, they're already on the root
+              if (!attr.startsWith('xmlns')) {
+                group.setAttribute(attr, svgElement.getAttribute(attr));
+              }
             }
-          }
-
-          // Copy all defs to the root SVG to maintain references
+          });
+          
+          // Extract all defs and add them to the root SVG (for animations, gradients, filters, etc.)
           const defsElements = svgElement.getElementsByTagName('defs');
           if (defsElements.length > 0) {
-            // Create a master defs in the root SVG if it doesn't exist
-            if (!rootDefs) {
-              rootDefs = rootSvg.createElement('defs');
-              // Insert defs as the first child for clarity and convention
-              if (rootElement.firstChild) {
-                  rootElement.insertBefore(rootDefs, rootElement.firstChild);
-              } else {
-                  rootElement.appendChild(rootDefs);
-              }
-            }
-
-            // Copy all items from source defs to root defs
             for (let i = 0; i < defsElements.length; i++) {
-              const sourceDefs = defsElements[i];
-              // Generate a unique prefix for IDs within this item
-              const itemIdentifier = item.id || `item${itemsProcessed}`; // Use item.id if available, otherwise index
-              const idPrefix = `${itemIdentifier.replace(/[^a-zA-Z0-9_]/g, '_')}_def${i}_`; // Make prefix more robust
-
-              // Process each child of defs
-              for (let j = 0; j < sourceDefs.childNodes.length; j++) {
-                const node = sourceDefs.childNodes[j];
-                if (node.nodeType === 1) { // ELEMENT_NODE
-                    const clonedNode = node.cloneNode(true);
-                    let originalId = null;
-                    let newId = null;
-
-                    if (clonedNode.hasAttribute('id')) {
-                        originalId = clonedNode.getAttribute('id');
-                        newId = idPrefix + originalId;
-                        clonedNode.setAttribute('id', newId);
-                    }
-
-                    rootDefs.appendChild(clonedNode);
-
-                    // Update references within the *cloned node itself* if it references other prefixed IDs
-                    if (newId) {
-                        updateReferences(clonedNode, originalId, newId, idPrefix);
-                    }
-
-                    // Update references within the main SVG content *being added* to point to the new prefixed ID in rootDefs
-                    if (originalId && newId) {
-                        updateReferences(svgElement, originalId, newId, idPrefix); // Update references in the source before cloning children
-                    }
-                }
+              const defs = defsElements[i];
+              
+              // Check if the root SVG already has a defs element
+              let rootDefs = rootElement.getElementsByTagName('defs')[0];
+              
+              if (!rootDefs) {
+                // Create a defs element if it doesn't exist
+                rootDefs = rootSvg.createElement('defs');
+                rootElement.insertBefore(rootDefs, rootElement.firstChild);
+              }
+              
+              // Copy each child from the defs to the root defs
+              for (let j = 0; j < defs.childNodes.length; j++) {
+                const defChild = defs.childNodes[j];
+                rootDefs.appendChild(defChild.cloneNode(true));
               }
             }
           }
-
-          // Copy all child elements excluding defs (those were already processed)
+          
+          // Copy all styles from the SVG
+          const styleElements = svgElement.getElementsByTagName('style');
+          if (styleElements.length > 0) {
+            // Find or create a style element in the root
+            let rootStyle = rootElement.getElementsByTagName('style')[0];
+            if (!rootStyle) {
+              rootStyle = rootSvg.createElement('style');
+              rootElement.insertBefore(rootStyle, rootElement.firstChild);
+            }
+            
+            // Append all style content
+            for (let i = 0; i < styleElements.length; i++) {
+              const styleContent = styleElements[i].textContent || '';
+              if (styleContent.trim()) {
+                const textNode = rootSvg.createTextNode(styleContent);
+                rootStyle.appendChild(textNode);
+              }
+            }
+          }
+          
+          // Copy all other elements (excluding <svg>, <defs>, and <style>)
           for (let i = 0; i < svgElement.childNodes.length; i++) {
             const node = svgElement.childNodes[i];
-            if (node.nodeName.toLowerCase() !== 'defs') {
+            const nodeName = node.nodeName.toLowerCase();
+            
+            if (nodeName !== 'defs' && nodeName !== 'style' && nodeName !== '#comment') {
               group.appendChild(node.cloneNode(true));
             }
           }
-
-          rootElement.appendChild(group);
-        } else if (item.type === 'image' || item.type.match(/^(png|jpg|jpeg|gif)$/)) {
-          // Create image element
-          const imageElement = rootSvg.createElement('image');
-          imageElement.setAttribute('x', item.x.toString());
-          imageElement.setAttribute('y', item.y.toString());
-          imageElement.setAttribute('width', item.width.toString());
-          imageElement.setAttribute('height', item.height.toString());
-          imageElement.setAttribute('href', content);
           
-          rootElement.appendChild(imageElement);
+          rootElement.appendChild(group);
         }
-
-        itemsProcessed++;
       } catch (error) {
         core.warning(`Error processing item ${JSON.stringify(item)}: ${error.message}`);
       }
-    }
-
-    if (itemsProcessed === 0) {
-      core.setFailed('No valid layout items were processed. Check your layout JSON and asset files.');
-      return;
     }
     
     // Serialize the merged SVG
@@ -96816,7 +96737,6 @@ async function run() {
     // Optimize SVG with SVGO but preserve animations
     core.info('Optimizing SVG with SVGO...');
     const optimizedSvg = (0,svgo_node/* optimize */.k)(mergedSvgString, {
-      multipass: true,
       plugins: [
         {
           name: 'preset-default',
