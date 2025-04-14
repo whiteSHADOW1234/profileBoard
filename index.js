@@ -44,7 +44,7 @@ async function run() {
       }
     }
     
-    // Set fixed background and SVG dimensions
+    // Set fixed dimensions for the SVG including background
     const minX = -150;
     const maxX = 1050;
     const minY = 0;
@@ -61,7 +61,7 @@ async function run() {
     
     const rootElement = rootSvg.documentElement;
     
-    // Add background rectangle
+    // Add background as the first element
     const backgroundRect = rootSvg.createElement('rect');
     backgroundRect.setAttribute('x', minX.toString());
     backgroundRect.setAttribute('y', minY.toString());
@@ -70,20 +70,98 @@ async function run() {
     backgroundRect.setAttribute('fill', 'white');
     rootElement.appendChild(backgroundRect);
     
-    // Create a container for all defs from different SVGs
-    const rootDefs = rootSvg.createElement('defs');
-    rootElement.appendChild(rootDefs);
+    // Create a collection to store animation-related elements
+    const defs = rootSvg.createElement('defs');
+    rootElement.appendChild(defs);
+    
+    // Track used IDs to prevent conflicts
+    const usedIds = new Set();
+    
+    // Helper function to make IDs unique
+    function makeIdUnique(id, itemId) {
+      if (!id) return null;
+      
+      const newId = `${itemId}_${id}`;
+      usedIds.add(newId);
+      return newId;
+    }
+    
+    // Helper function to update ID references in attributes
+    function updateIdReferences(element, oldId, newId) {
+      // Common attributes that might reference IDs
+      const idRefAttributes = [
+        'href', 'xlink:href', 'fill', 'stroke', 'filter', 'mask', 'clip-path', 'marker-start',
+        'marker-mid', 'marker-end', 'begin', 'end', 'attributeName', 'by', 'from', 'to', 'values'
+      ];
+      
+      // Check each attribute that might contain an ID reference
+      for (let i = 0; i < element.attributes.length; i++) {
+        const attr = element.attributes[i];
+        
+        if (idRefAttributes.includes(attr.name)) {
+          // Check for URL references like "url(#id)"
+          if (attr.value.includes(`url(#${oldId})`)) {
+            attr.value = attr.value.replace(`url(#${oldId})`, `url(#${newId})`);
+          }
+          // Check for direct ID references like "#id"
+          else if (attr.value === `#${oldId}`) {
+            attr.value = `#${newId}`;
+          }
+        }
+        
+        // Special case for animation references
+        if (attr.value && attr.value.includes(oldId)) {
+          // Update animation timing references like "id.begin+1s"
+          if (attr.name === 'begin' || attr.name === 'end') {
+            const regex = new RegExp(oldId + '(?=[.;])', 'g');
+            attr.value = attr.value.replace(regex, newId);
+          }
+        }
+      }
+    }
+    
+    // Recursively process an element and its children to update ID references
+    function processElementIds(element, itemId, idMap) {
+      if (!element) return;
+      
+      // Process this element's ID if it has one
+      if (element.hasAttribute && element.hasAttribute('id')) {
+        const oldId = element.getAttribute('id');
+        const newId = makeIdUnique(oldId, itemId);
+        
+        if (newId) {
+          element.setAttribute('id', newId);
+          idMap[oldId] = newId;
+          
+          // Update references to this ID in the element itself
+          updateIdReferences(element, oldId, newId);
+        }
+      }
+      
+      // Process attributes that might reference IDs
+      if (element.hasAttribute) {
+        for (const [oldId, newId] of Object.entries(idMap)) {
+          updateIdReferences(element, oldId, newId);
+        }
+      }
+      
+      // Process child elements recursively
+      if (element.childNodes) {
+        for (let i = 0; i < element.childNodes.length; i++) {
+          processElementIds(element.childNodes[i], itemId, idMap);
+        }
+      }
+    }
     
     // Process each layout item
     for (const item of layout) {
       try {
-        let content;
-        let isRemoteSvg = false;
+        let svgContent;
         
         // Handle different URL types
         if (item.url.startsWith('http://') || item.url.startsWith('https://')) {
           // Remote URL - fetch content
-          core.info(`Fetching remote URL: ${item.url}`);
+          core.info(`Fetching SVG from URL: ${item.url}`);
           const response = await fetch(item.url);
           
           if (!response.ok) {
@@ -92,19 +170,43 @@ async function run() {
           
           const contentType = response.headers.get('content-type');
           
-          if (item.type === 'svg' || (contentType && contentType.includes('svg'))) {
-            // Get SVG source code directly
-            content = await response.text();
-            isRemoteSvg = true;
+          if (item.type === 'svg') {
+            // Get raw SVG content
+            svgContent = await response.text();
+            
+            // Sometimes APIs return JSON with SVG embedded - try to extract it
+            if (contentType?.includes('application/json')) {
+              try {
+                const jsonData = JSON.parse(svgContent);
+                // Check common fields where SVG might be
+                if (jsonData.svg) svgContent = jsonData.svg;
+                else if (jsonData.data) svgContent = jsonData.data;
+                else if (jsonData.content) svgContent = jsonData.content;
+              } catch (e) {
+                // Not valid JSON or doesn't contain SVG, keep the original content
+                core.info(`Response looks like JSON but couldn't extract SVG: ${e.message}`);
+              }
+            }
+            
+            // Handle case where content is a data URL
+            if (svgContent.startsWith('data:image/svg+xml;base64,')) {
+              const base64Data = svgContent.replace('data:image/svg+xml;base64,', '');
+              svgContent = Buffer.from(base64Data, 'base64').toString('utf8');
+            }
+            
+            // Make sure content is actually SVG
+            if (!svgContent.trim().startsWith('<svg') && !svgContent.trim().startsWith('<?xml')) {
+              throw new Error(`Content from ${item.url} is not valid SVG`);
+            }
           } else {
-            // For images, we'll need the binary data as base64
+            // For non-SVG images, convert to data URL for embedding
             const buffer = await response.arrayBuffer();
             const base64 = Buffer.from(buffer).toString('base64');
-            const mimeType = contentType || 'image/png';
-            content = `data:${mimeType};base64,${base64}`;
+            const mimeType = contentType || `image/${item.type}` || 'image/png';
+            svgContent = `data:${mimeType};base64,${base64}`;
           }
         } else if (item.url.startsWith('blob:')) {
-          // Local file - read from disk (keeping the blob: prefix for compatibility)
+          // Local file with blob: prefix
           const filePath = item.url.substring(5); // Remove 'blob:' prefix
           const imagePath = path.join('images', filePath);
           
@@ -117,12 +219,12 @@ async function run() {
           const fileContent = await fs.readFile(assetMap.get(imagePath));
           
           if (item.type === 'svg') {
-            content = fileContent.toString('utf8');
+            svgContent = fileContent.toString('utf8');
           } else {
-            // For images, convert to base64
+            // For non-SVG images, convert to data URL
             const base64 = fileContent.toString('base64');
-            const mimeType = item.type === 'image' ? 'image/png' : `image/${item.type}`;
-            content = `data:${mimeType};base64,${base64}`;
+            const mimeType = `image/${item.type}` || 'image/png';
+            svgContent = `data:${mimeType};base64,${base64}`;
           }
         } else if (item.url.startsWith('images/')) {
           // Direct path to images directory
@@ -137,32 +239,29 @@ async function run() {
           const fileContent = await fs.readFile(assetMap.get(imagePath));
           
           if (item.type === 'svg') {
-            content = fileContent.toString('utf8');
+            svgContent = fileContent.toString('utf8');
           } else {
-            // For images, convert to base64
+            // For non-SVG images, convert to data URL
             const base64 = fileContent.toString('base64');
-            const mimeType = item.type === 'image' ? 'image/png' : `image/${item.type}`;
-            content = `data:${mimeType};base64,${base64}`;
+            const mimeType = `image/${item.type}` || 'image/png';
+            svgContent = `data:${mimeType};base64,${base64}`;
           }
         } else {
           throw new Error(`Unsupported URL format: ${item.url}`);
         }
         
-        // Generate a unique ID prefix for this SVG to avoid conflicts when inlining
-        const uniquePrefix = `svg_${item.id || Math.random().toString(36).substring(2, 10)}`;
-        
         // Process content based on type
         if (item.type === 'svg') {
           // Parse SVG content
-          const svgDoc = parser.parseFromString(content, 'image/svg+xml');
+          const svgDoc = parser.parseFromString(svgContent, 'image/svg+xml');
           const svgElement = svgDoc.documentElement;
           
-          // Create a group to position and scale the SVG
+          // Create a group to position the SVG
           const group = rootSvg.createElement('g');
+          group.setAttribute('id', `item_${item.id}`);
           group.setAttribute('transform', `translate(${item.x}, ${item.y})`);
-          group.setAttribute('id', uniquePrefix);
           
-          // Get SVG dimensions
+          // Get SVG dimensions for scaling
           let svgWidth, svgHeight;
           
           if (svgElement.hasAttribute('width') && svgElement.hasAttribute('height')) {
@@ -185,121 +284,86 @@ async function run() {
             group.setAttribute('transform', `translate(${item.x}, ${item.y}) scale(${scaleX}, ${scaleY})`);
           }
           
-          // Copy style attributes that might affect animations
-          ['style', 'class'].forEach(attr => {
+          // Map to store original ID to new ID mappings
+          const idMap = {};
+          
+          // Extract <defs> elements and add them to root defs
+          // Important for animations, gradients, filters, etc.
+          const svgDefs = svgElement.getElementsByTagName('defs');
+          if (svgDefs.length > 0) {
+            for (let i = 0; i < svgDefs.length; i++) {
+              const defElement = svgDefs[i];
+              
+              // Process all child nodes of defs
+              for (let j = 0; j < defElement.childNodes.length; j++) {
+                const defChild = defElement.childNodes[j];
+                if (defChild.nodeType === 1) { // Element node
+                  const clonedDef = defChild.cloneNode(true);
+                  processElementIds(clonedDef, item.id, idMap);
+                  defs.appendChild(clonedDef);
+                }
+              }
+            }
+          }
+          
+          // Extract <style> elements and add them to the group
+          const styleElements = svgElement.getElementsByTagName('style');
+          if (styleElements.length > 0) {
+            for (let i = 0; i < styleElements.length; i++) {
+              const styleElement = styleElements[i];
+              const clonedStyle = styleElement.cloneNode(true);
+              // Update selectors in CSS if needed
+              if (clonedStyle.textContent) {
+                let cssText = clonedStyle.textContent;
+                for (const [oldId, newId] of Object.entries(idMap)) {
+                  const idSelector = `#${oldId}`;
+                  const newSelector = `#${newId}`;
+                  cssText = cssText.replace(new RegExp(idSelector, 'g'), newSelector);
+                }
+                clonedStyle.textContent = cssText;
+              }
+              group.appendChild(clonedStyle);
+            }
+          }
+          
+          // Copy all animation-related attributes from source SVG
+          const animationAttrs = ['onload', 'class', 'style'];
+          animationAttrs.forEach(attr => {
             if (svgElement.hasAttribute(attr)) {
               group.setAttribute(attr, svgElement.getAttribute(attr));
             }
           });
           
-          // Extract and process all defs from source SVG
-          const defsElements = svgElement.getElementsByTagName('defs');
-          if (defsElements.length > 0) {
-            for (let i = 0; i < defsElements.length; i++) {
-              const defs = defsElements[i];
-              
-              // Process all elements in defs to make IDs unique
-              const allDefNodes = defs.childNodes;
-              for (let j = 0; j < allDefNodes.length; j++) {
-                const defNode = allDefNodes[j];
-                if (defNode.nodeType === 1 && defNode.hasAttribute('id')) {
-                  const oldId = defNode.getAttribute('id');
-                  const newId = `${uniquePrefix}_${oldId}`;
-                  defNode.setAttribute('id', newId);
-                  
-                  // We also need to update all references to this id in the SVG
-                  updateReferences(svgElement, `#${oldId}`, `#${newId}`);
-                }
-              }
-              
-              // Now append processed defs to root defs
-              for (let j = 0; j < allDefNodes.length; j++) {
-                if (allDefNodes[j].nodeType === 1) { // Check if it's an element node
-                  rootDefs.appendChild(allDefNodes[j].cloneNode(true));
-                }
-              }
+          // Copy all child nodes (except defs and style which were handled separately)
+          for (let i = 0; i < svgElement.childNodes.length; i++) {
+            const node = svgElement.childNodes[i];
+            const nodeName = node.nodeName.toLowerCase();
+            
+            // Skip defs and style elements as they're already processed
+            if (nodeName !== 'defs' && nodeName !== 'style') {
+              const clonedNode = node.cloneNode(true);
+              processElementIds(clonedNode, item.id, idMap);
+              group.appendChild(clonedNode);
             }
           }
           
-          // For remote SVGs that might have animation, we need to be particularly careful
-          if (isRemoteSvg) {
-            // SVG might contain SMIL animations, CSS animations, or other dynamic content
-            // Create a new sanitized copy that removes the SVG wrapper but keeps everything else
-            const allContentNodes = svgElement.childNodes;
-            for (let i = 0; i < allContentNodes.length; i++) {
-              const node = allContentNodes[i];
-              if (node.nodeType === 1 && node.nodeName !== 'defs') {
-                const clone = node.cloneNode(true);
-                group.appendChild(clone);
-              }
-            }
-          } else {
-            // For local SVGs, we can use our existing approach
-            for (let i = 0; i < svgElement.childNodes.length; i++) {
-              const node = svgElement.childNodes[i];
-              if (node.nodeType === 1 && node.nodeName !== 'defs') {
-                group.appendChild(node.cloneNode(true));
-              }
-            }
-          }
-          
+          // Add the group to the root SVG
           rootElement.appendChild(group);
+          
         } else if (item.type === 'image' || item.type.match(/^(png|jpg|jpeg|gif)$/)) {
-          // Handle regular images
+          // Create image element for non-SVG content
           const imageElement = rootSvg.createElement('image');
+          imageElement.setAttribute('id', `item_${item.id}`);
           imageElement.setAttribute('x', item.x);
           imageElement.setAttribute('y', item.y);
           imageElement.setAttribute('width', item.width);
           imageElement.setAttribute('height', item.height);
-          imageElement.setAttribute('href', content);
-          imageElement.setAttribute('id', uniquePrefix);
+          imageElement.setAttribute('href', svgContent);
           
           rootElement.appendChild(imageElement);
         }
       } catch (error) {
         core.warning(`Error processing item ${JSON.stringify(item)}: ${error.message}`);
-      }
-    }
-    
-    // Helper function to update references in href, url(), and other attributes
-    function updateReferences(element, oldRef, newRef) {
-      // Handle all element nodes
-      for (let i = 0; i < element.childNodes.length; i++) {
-        const node = element.childNodes[i];
-        if (node.nodeType !== 1) continue; // Skip non-element nodes
-        
-        // Check attributes that might contain references
-        const refAttributes = ['href', 'xlink:href', 'fill', 'stroke', 'filter', 'mask', 'clip-path', 'marker-start', 'marker-mid', 'marker-end'];
-        
-        for (const attr of refAttributes) {
-          if (node.hasAttribute(attr)) {
-            let value = node.getAttribute(attr);
-            
-            // Direct reference
-            if (value === oldRef) {
-              node.setAttribute(attr, newRef);
-            } 
-            // url() reference
-            else if (value.includes(`url(${oldRef})`)) {
-              value = value.replace(`url(${oldRef})`, `url(${newRef})`);
-              node.setAttribute(attr, value);
-            }
-          }
-        }
-        
-        // Check style attribute for url references
-        if (node.hasAttribute('style')) {
-          let style = node.getAttribute('style');
-          if (style.includes(`url(${oldRef})`)) {
-            style = style.replace(`url(${oldRef})`, `url(${newRef})`);
-            node.setAttribute('style', style);
-          }
-        }
-        
-        // Recursively process child elements
-        if (node.childNodes.length > 0) {
-          updateReferences(node, oldRef, newRef);
-        }
       }
     }
     

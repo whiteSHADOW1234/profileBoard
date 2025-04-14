@@ -1,6 +1,6 @@
 name: 'SVG Layout Composer'
-description: 'Composes multiple SVGs or images into a single SVG based on layout coordinates, preserving animations'
-author: 'whiteshadow1234'
+description: 'Composes SVGs and images into a single SVG based on layout coordinates, preserving animations'
+author: 'whiteSHADOW1234'
 
 inputs:
   layout:
