@@ -21,6 +21,22 @@ jobs:
         with:
           persist-credentials: true
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          # In case package-lock.json doesn't exist
+          if [ $? -ne 0 ]; then
+            npm install
+          fi
+      
+      - name: Build action
+        run: npx @vercel/ncc build index.js -o dist
+
       - name: Merge SVG Components
         uses: ./           # your local Action
         with:
