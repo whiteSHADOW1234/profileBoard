@@ -6,9 +6,8 @@
 This GitHub Action automatically composes multiple SVGs and images (from URLs or local files) into a single, sleek SVG based on coordinates you define in a layout file. Keep your profile README clean and your visuals perfectly arranged! ✨
 
 ![Screenshot of the Profile Board Website](screenshot.png)
-
 <img src="https://profile-board-github.vercel.app/merged.svg"  alt="Animated Profile Board" />
-
+<img src="https://cdn.jsdelivr.net/gh/whiteSHADOW1234/profileBoard@main/README.svg"  alt="Animated Profile Board" />
 [Rendered link for the generated SVG using this GitHub Action](https://www.svgviewer.dev/s/zuCi5j1p)
 
 ## 🤔 Why Use This Action?
