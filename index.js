@@ -8,9 +8,6 @@ import fetch from 'node-fetch';
 import { optimize } from 'svgo';
 import { DOMParser, XMLSerializer } from 'xmldom';
 
-/**
- * Main function to run the GitHub Action
- */
 async function run() {
   try {
     // Get inputs from action
@@ -18,7 +15,6 @@ async function run() {
     const assetsInput = core.getInput('assets', { required: false }) || 'images/*.svg';
     const token = core.getInput('token', { required: true });
     
-    core.info('Parsing layout JSON...');
     // Parse layout JSON
     let layout;
     try {
@@ -36,7 +32,6 @@ async function run() {
     const serializer = new XMLSerializer();
     
     // Create a map of asset files for faster lookups
-    core.info('Scanning local assets...');
     const assetMap = new Map();
     const assetPatterns = assetsInput.split(',').map(pattern => pattern.trim());
     
@@ -50,7 +45,7 @@ async function run() {
       }
     }
     
-    // Define the SVG canvas size based on specified dimensions
+    // Set fixed dimensions for background and viewBox
     const minX = -150;
     const maxX = 1050;
     const minY = 0;
@@ -59,9 +54,7 @@ async function run() {
     const svgWidth = maxX - minX;
     const svgHeight = maxY - minY;
     
-    core.info(`Creating root SVG with dimensions: width=${svgWidth}, height=${svgHeight}, viewBox="${minX} ${minY} ${svgWidth} ${svgHeight}"`);
-    
-    // Create the root SVG with specified dimensions
+    // Create the root SVG with fixed dimensions
     const rootSvg = parser.parseFromString(
       `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${svgWidth}" height="${svgHeight}" viewBox="${minX} ${minY} ${svgWidth} ${svgHeight}"></svg>`,
       'image/svg+xml'
@@ -69,27 +62,11 @@ async function run() {
     
     const rootElement = rootSvg.documentElement;
     
-    // Add background element
-    const bgRect = rootSvg.createElement('rect');
-    bgRect.setAttribute('x', minX.toString());
-    bgRect.setAttribute('y', minY.toString());
-    bgRect.setAttribute('width', svgWidth.toString());
-    bgRect.setAttribute('height', svgHeight.toString());
-    bgRect.setAttribute('fill', 'transparent');
-    rootElement.appendChild(bgRect);
-    
-    // Function to extract SVG content from element
-    function extractSvgContent(svgElement) {
-      // Convert SVG element to string
-      return serializer.serializeToString(svgElement);
-    }
-    
     // Process each layout item
     for (const item of layout) {
       try {
-        core.info(`Processing item: ${item.id} (${item.type}) at position x=${item.x}, y=${item.y}`);
         let content;
-        let contentType;
+        let isSvgContent = false;
         
         // Handle different URL types
         if (item.url.startsWith('http://') || item.url.startsWith('https://')) {
@@ -101,20 +78,31 @@ async function run() {
             throw new Error(`Failed to fetch ${item.url}: ${response.statusText}`);
           }
           
-          contentType = response.headers.get('content-type');
-          
-          if (item.type === 'svg' || contentType?.includes('svg')) {
-            // Get the raw SVG text
+          // For SVG type, fetch the actual SVG source
+          if (item.type === 'svg') {
             content = await response.text();
+            isSvgContent = true;
+            
+            // Quick validation that it's really SVG content
+            if (!content.includes('<svg') || !content.includes('</svg>')) {
+              core.warning(`Content from ${item.url} doesn't appear to be valid SVG. Will treat as image.`);
+              isSvgContent = false;
+              
+              // Convert to data URL as fallback
+              const buffer = await response.arrayBuffer();
+              const base64 = Buffer.from(buffer).toString('base64');
+              const mimeType = response.headers.get('content-type') || 'image/svg+xml';
+              content = `data:${mimeType};base64,${base64}`;
+            }
           } else {
-            // For images, get binary data and convert to base64 data URL
+            // For non-SVG types, use data URL
             const buffer = await response.arrayBuffer();
             const base64 = Buffer.from(buffer).toString('base64');
-            const mimeType = contentType || 'image/png';
+            const mimeType = response.headers.get('content-type') || 'image/png';
             content = `data:${mimeType};base64,${base64}`;
           }
         } else if (item.url.startsWith('blob:')) {
-          // Local file with blob: prefix
+          // Local file - read from disk
           const filePath = item.url.substring(5); // Remove 'blob:' prefix
           const imagePath = path.join('images', filePath);
           
@@ -128,11 +116,11 @@ async function run() {
           
           if (item.type === 'svg') {
             content = fileContent.toString('utf8');
+            isSvgContent = true;
           } else {
             // For images, convert to base64
             const base64 = fileContent.toString('base64');
-            const ext = path.extname(imagePath).slice(1) || item.type;
-            const mimeType = ext === 'svg' ? 'image/svg+xml' : `image/${ext}`;
+            const mimeType = item.type === 'image' ? 'image/png' : `image/${item.type}`;
             content = `data:${mimeType};base64,${base64}`;
           }
         } else if (item.url.startsWith('images/')) {
@@ -149,36 +137,37 @@ async function run() {
           
           if (item.type === 'svg') {
             content = fileContent.toString('utf8');
+            isSvgContent = true;
           } else {
             // For images, convert to base64
             const base64 = fileContent.toString('base64');
-            const ext = path.extname(imagePath).slice(1) || item.type;
-            const mimeType = ext === 'svg' ? 'image/svg+xml' : `image/${ext}`;
+            const mimeType = item.type === 'image' ? 'image/png' : `image/${item.type}`;
             content = `data:${mimeType};base64,${base64}`;
           }
         } else {
           throw new Error(`Unsupported URL format: ${item.url}`);
         }
         
-        // Process content based on type
-        if (item.type === 'svg' || contentType?.includes('svg')) {
-          // Parse SVG content
+        // Process based on content type
+        if (isSvgContent) {
+          // For SVG content, we want to extract elements and inline them
+          
           try {
+            // Create a temporary unique ID for this group to avoid collision with other SVGs
+            const groupId = `svg-group-${Math.random().toString(36).substring(2, 9)}`;
+            
+            // Parse SVG content
             const svgDoc = parser.parseFromString(content, 'image/svg+xml');
-            
-            // Check for parsing errors
-            const errors = svgDoc.getElementsByTagName('parsererror');
-            if (errors.length > 0) {
-              throw new Error(`Failed to parse SVG: ${extractSvgContent(errors[0])}`);
-            }
-            
             const svgElement = svgDoc.documentElement;
             
-            // Create a group to position the SVG
+            // Create a group element to contain the SVG content
             const group = rootSvg.createElement('g');
-            group.setAttribute('id', `item-${item.id}`);
+            group.setAttribute('id', groupId);
             
-            // Get SVG dimensions from different possible attributes
+            // Set the transform to position and scale the SVG
+            let transformValue = `translate(${item.x}, ${item.y})`;
+            
+            // Get SVG dimensions
             let svgWidth, svgHeight;
             
             if (svgElement.hasAttribute('width') && svgElement.hasAttribute('height')) {
@@ -186,185 +175,218 @@ async function run() {
               svgHeight = parseFloat(svgElement.getAttribute('height'));
             } else if (svgElement.hasAttribute('viewBox')) {
               const viewBox = svgElement.getAttribute('viewBox').split(/[\s,]+/);
-              if (viewBox.length >= 4) {
-                svgWidth = parseFloat(viewBox[2]);
-                svgHeight = parseFloat(viewBox[3]);
-              }
-            }
-            
-            // Set default dimensions if not found
-            if (!svgWidth || !svgHeight) {
+              svgWidth = parseFloat(viewBox[2]);
+              svgHeight = parseFloat(viewBox[3]);
+            } else {
+              // Default dimensions if not specified
               svgWidth = item.width;
               svgHeight = item.height;
             }
             
-            // Apply transformation for positioning and scaling
-            let transform = `translate(${item.x}, ${item.y})`;
-            
-            // Apply scaling if dimensions don't match
+            // Apply scale if necessary
             if (svgWidth !== item.width || svgHeight !== item.height) {
               const scaleX = item.width / svgWidth;
               const scaleY = item.height / svgHeight;
-              transform += ` scale(${scaleX}, ${scaleY})`;
+              transformValue = `translate(${item.x}, ${item.y}) scale(${scaleX}, ${scaleY})`;
             }
             
-            group.setAttribute('transform', transform);
+            group.setAttribute('transform', transformValue);
             
-            // Preserve namespace declarations that might be needed for animations/styling
-            for (let i = 0; i < svgElement.attributes.length; i++) {
-              const attr = svgElement.attributes[i];
-              if (attr.name.startsWith('xmlns:') && !group.hasAttribute(attr.name)) {
-                group.setAttribute(attr.name, attr.value);
+            // Copy important attributes from the source SVG element
+            const attributesToCopy = ['style', 'class', 'fill'];
+            attributesToCopy.forEach(attr => {
+              if (svgElement.hasAttribute(attr)) {
+                group.setAttribute(attr, svgElement.getAttribute(attr));
               }
-            }
+            });
             
-            // Preserve defs (important for animations, filters, etc.)
+            // Process <defs> separately to maintain animations, gradients, etc.
             const defsElements = svgElement.getElementsByTagName('defs');
-            const defsGroup = rootSvg.createElement('defs');
-            group.appendChild(defsGroup);
+            const allDefs = [];
             
             if (defsElements.length > 0) {
+              // Create a container for all defs from this SVG
+              const mergedDefs = rootSvg.createElement('defs');
+              mergedDefs.setAttribute('data-source', groupId);
+              
               for (let i = 0; i < defsElements.length; i++) {
                 const defs = defsElements[i];
+                
+                // Copy all children of each defs element
                 for (let j = 0; j < defs.childNodes.length; j++) {
-                  defsGroup.appendChild(defs.childNodes[j].cloneNode(true));
+                  const defsNode = defs.childNodes[j];
+                  if (defsNode.nodeType === 1) { // Element node
+                    // Add a prefix to IDs to avoid conflicts
+                    if (defsNode.hasAttribute('id')) {
+                      const originalId = defsNode.getAttribute('id');
+                      const newId = `${groupId}-${originalId}`;
+                      defsNode.setAttribute('id', newId);
+                      allDefs.push({ originalId, newId });
+                    }
+                    mergedDefs.appendChild(defsNode.cloneNode(true));
+                  }
                 }
               }
+              
+              rootElement.appendChild(mergedDefs);
             }
             
-            // Copy all child nodes except defs to preserve structure
+            // Process and add all other elements
             for (let i = 0; i < svgElement.childNodes.length; i++) {
               const node = svgElement.childNodes[i];
+              
+              // Skip defs elements as we've already handled them
               if (node.nodeName.toLowerCase() !== 'defs') {
-                group.appendChild(node.cloneNode(true));
+                // Clone the node so we can modify it
+                const clonedNode = node.cloneNode(true);
+                
+                // Update references to defs IDs if needed
+                if (allDefs.length > 0) {
+                  updateReferences(clonedNode, allDefs);
+                }
+                
+                group.appendChild(clonedNode);
               }
             }
             
+            // Add the complete group to the root SVG
             rootElement.appendChild(group);
-            core.info(`Successfully processed SVG item: ${item.id}`);
+            
           } catch (svgError) {
-            core.warning(`Error processing SVG content for item ${item.id}: ${svgError.message}`);
-            // Fallback to <foreignObject> embedding for problematic SVGs
-            core.info(`Falling back to foreignObject embedding for item ${item.id}`);
+            core.warning(`Error processing SVG ${item.url}: ${svgError.message}. Falling back to image.`);
             
-            const foreignObject = rootSvg.createElement('foreignObject');
-            foreignObject.setAttribute('x', item.x.toString());
-            foreignObject.setAttribute('y', item.y.toString());
-            foreignObject.setAttribute('width', item.width.toString());
-            foreignObject.setAttribute('height', item.height.toString());
+            // Fallback to image if SVG processing fails
+            const imageElement = rootSvg.createElement('image');
+            imageElement.setAttribute('x', item.x);
+            imageElement.setAttribute('y', item.y);
+            imageElement.setAttribute('width', item.width);
+            imageElement.setAttribute('height', item.height);
             
-            // Sanitize content to prevent XML issues
-            content = content.replace(/<\?xml.*?\?>/, '');
+            if (content.startsWith('data:')) {
+              imageElement.setAttribute('href', content);
+            } else {
+              imageElement.setAttribute('href', item.url);
+            }
             
-            // Create a div wrapper with the raw SVG content
-            const div = rootSvg.createElement('div');
-            div.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
-            div.setAttribute('style', 'width:100%;height:100%');
-            
-            // Set the innerHTML (using a hack since xmldom doesn't support innerHTML)
-            const placeholder = '___SVG_CONTENT_PLACEHOLDER___';
-            div.textContent = placeholder;
-            
-            // Serialize, replace placeholder with actual content, then parse again
-            let serialized = serializer.serializeToString(div);
-            serialized = serialized.replace(placeholder, content);
-            
-            const tempDoc = parser.parseFromString(
-              `<root>${serialized}</root>`, 'text/xml'
-            );
-            
-            foreignObject.appendChild(tempDoc.documentElement.firstChild);
-            rootElement.appendChild(foreignObject);
+            rootElement.appendChild(imageElement);
           }
-        } else if (item.type === 'image' || ['png', 'jpg', 'jpeg', 'gif'].includes(item.type)) {
+        } else if (item.type === 'image' || item.type.match(/^(png|jpg|jpeg|gif)$/)) {
           // Create image element
           const imageElement = rootSvg.createElement('image');
-          imageElement.setAttribute('id', `item-${item.id}`);
-          imageElement.setAttribute('x', item.x.toString());
-          imageElement.setAttribute('y', item.y.toString());
-          imageElement.setAttribute('width', item.width.toString());
-          imageElement.setAttribute('height', item.height.toString());
-          imageElement.setAttribute('href', content); // Using href attribute which works in modern browsers
+          imageElement.setAttribute('x', item.x);
+          imageElement.setAttribute('y', item.y);
+          imageElement.setAttribute('width', item.width);
+          imageElement.setAttribute('height', item.height);
+          imageElement.setAttribute('href', content);
           
           rootElement.appendChild(imageElement);
-          core.info(`Successfully processed image item: ${item.id}`);
         }
       } catch (error) {
-        core.warning(`Error processing item ${item.id}: ${error.message}`);
+        core.warning(`Error processing item ${JSON.stringify(item)}: ${error.message}`);
+      }
+    }
+    
+    // Helper function to update references in SVG elements
+    function updateReferences(node, idMappings) {
+      if (!node || node.nodeType !== 1) return;
+      
+      // Update attributes that might reference IDs
+      const refAttributes = ['href', 'xlink:href', 'fill', 'stroke', 'filter', 'mask', 'clip-path', 'marker-start', 'marker-mid', 'marker-end'];
+      
+      refAttributes.forEach(attr => {
+        if (node.hasAttribute(attr)) {
+          let value = node.getAttribute(attr);
+          
+          idMappings.forEach(mapping => {
+            // Replace references like "url(#id)" or "#id"
+            value = value.replace(`url(#${mapping.originalId})`, `url(#${mapping.newId})`)
+                         .replace(`#${mapping.originalId}`, `#${mapping.newId}`);
+          });
+          
+          node.setAttribute(attr, value);
+        }
+      });
+      
+      // Update style attribute that might contain url references
+      if (node.hasAttribute('style')) {
+        let styleValue = node.getAttribute('style');
+        
+        idMappings.forEach(mapping => {
+          styleValue = styleValue.replace(`url(#${mapping.originalId})`, `url(#${mapping.newId})`)
+                              .replace(`#${mapping.originalId}`, `#${mapping.newId}`);
+        });
+        
+        node.setAttribute('style', styleValue);
+      }
+      
+      // Recursively process child nodes
+      if (node.childNodes) {
+        for (let i = 0; i < node.childNodes.length; i++) {
+          updateReferences(node.childNodes[i], idMappings);
+        }
       }
     }
     
     // Serialize the merged SVG
-    core.info('Serializing merged SVG...');
     const mergedSvgString = serializer.serializeToString(rootSvg);
     
     // Write merged SVG to temporary file
     await fs.writeFile('merged.svg', mergedSvgString);
     
-    // Optimize SVG but preserve animations and interactivity
+    // Optimize SVG with SVGO but preserve animations
     core.info('Optimizing SVG with SVGO...');
-    try {
-      const optimizedSvg = optimize(mergedSvgString, {
-        multipass: true,
-        plugins: [
-          {
-            name: 'preset-default',
-            params: {
-              overrides: {
-                // Disable plugins that might break animations or layout
-                removeViewBox: false,
-                removeHiddenElems: false,
-                removeUselessDefs: false,
-                convertShapeToPath: false,
-                moveElemsAttrsToGroup: false,
-                moveGroupAttrsToElems: false,
-                collapseGroups: false,
-                convertPathData: false,
-                removeEmptyAttrs: false,
-                removeEmptyContainers: false,
-                mergePaths: false,
-                removeUnknownsAndDefaults: false,
-                removeNonInheritableGroupAttrs: false,
-                // Critical for animations and interactivity
-                inlineStyles: false,
-                minifyStyles: false,
-                cleanupIDs: false,
-                removeXMLProcInst: false
-              },
+    const optimizedSvg = optimize(mergedSvgString, {
+      multipass: true,
+      plugins: [
+        {
+          name: 'preset-default',
+          params: {
+            overrides: {
+              // Disable plugins that might break animations or layout
+              removeViewBox: false,
+              removeHiddenElems: false,
+              removeUselessDefs: false,
+              convertShapeToPath: false,
+              moveElemsAttrsToGroup: false,
+              moveGroupAttrsToElems: false,
+              collapseGroups: false,
+              convertPathData: false,
+              removeEmptyAttrs: false,
+              removeEmptyContainers: false,
+              mergePaths: false,
+              removeUnknownsAndDefaults: false,
+              removeNonInheritableGroupAttrs: false,
+              // Critical for animations
+              inlineStyles: false,
+              minifyStyles: false,
+              cleanupIDs: false
             },
           },
-          {
-            name: 'removeDoctype',
-            active: true
-          },
-          {
-            name: 'removeXMLNS',
-            active: false
-          }
-        ],
-      });
-      
-      // Write optimized SVG to README.svg
-      await fs.writeFile('README.svg', optimizedSvg.data);
-      core.info('SVG optimization completed successfully.');
-    } catch (svgoError) {
-      core.warning(`SVGO optimization failed: ${svgoError.message}. Using unoptimized SVG.`);
-      // If optimization fails, use the original merged SVG
-      await fs.writeFile('README.svg', mergedSvgString);
-    }
+        },
+        // Additional important plugins for animation preservation
+        {
+          name: 'removeXMLNS',
+          active: false
+        },
+        {
+          name: 'cleanupIDs',
+          active: false
+        }
+      ],
+    });
     
-    // Configure git user for commit
-    core.info('Configuring Git user...');
+    // Write optimized SVG to README.svg
+    await fs.writeFile('README.svg', optimizedSvg.data);
+    
+    // Configure git user
     await exec.exec('git', ['config', 'user.name', 'GitHub Action']);
     await exec.exec('git', ['config', 'user.email', 'action@github.com']);
     
     // Check if there are changes to commit
-    core.info('Checking for changes to commit...');
     const { exitCode } = await exec.exec('git', ['diff', '--quiet', 'README.svg'], { ignoreReturnCode: true });
     
     if (exitCode !== 0) {
       // Changes detected, commit and push
-      core.info('Changes detected, committing and pushing...');
       await exec.exec('git', ['add', 'README.svg']);
       await exec.exec('git', ['commit', '-m', 'ci: update merged profile SVG']);
       
