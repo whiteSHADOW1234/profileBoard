@@ -1,4 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="600" viewBox="-150 0 1200 600" xmlns:svg="http://www.w3.org/2000/svg" xmlns:html="http://www.w3.org/1999/xhtml"><defs><style>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="600" viewBox="-150 0 1200 600"><rect x="-150" y="0" width="1200" height="600" fill="transparent"/><g id="item-ee90d6c8-849b-4997-b2ba-80f1dff77e39" transform="translate(-96.22974046204877, -20.670062033716064) scale(0.9818181818181818, 1.2974358974358975)"><defs/>
+        <title id="titleId">whiteSHADOW1234's GitHub Stats, Rank: A+</title>
+        <desc id="descId">Total Stars Earned: 95, Total Commits in 2025 : 95, Total PRs: 17, Total Issues: 5, Contributed to (last year): 3</desc>
+        <style>
           .header {
             font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
             fill: #bddfff;
@@ -55,7 +58,7 @@
         stroke-dashoffset: 251.32741228718345;
       }
       to {
-        stroke-dashoffset: 123.41442906330457;
+        stroke-dashoffset: 123.42874912190433;
       }
     }
   
@@ -81,241 +84,7 @@
     }
   
           
-        </style><style>
-          .header {
-            font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
-            fill: #c792ea;
-            animation: fadeInAnimation 0.8s ease-in-out forwards;
-          }
-          @supports(-moz-appearance: auto) {
-            /* Selector detects Firefox */
-            .header { font-size: 15.5px; }
-          }
-          .lang-name { font: 400 11px 'Segoe UI', Ubuntu, Sans-Serif; fill: #7fdbca }
-
-          
-    /* Animations */
-    @keyframes scaleInAnimation {
-      from {
-        transform: translate(-5px, 5px) scale(0);
-      }
-      to {
-        transform: translate(-5px, 5px) scale(1);
-      }
-    }
-    @keyframes fadeInAnimation {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
-    }
-  
-          * { animation-duration: 0s !important; animation-delay: 0s !important; }
         </style>
-    <linearGradient id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-SECRET-5" gradientTransform="rotate(45)">
-    
-    <stop offset="0%" stop-color="#e06c75"/>
-    <stop offset="50%" stop-color="#c678dd"/>
-    <stop offset="100%" stop-color="#61afef"/>
-    
-    </linearGradient>
-  
-    <linearGradient id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-AAA-7" gradientTransform="rotate(45)">
-    
-    <stop offset="0%" stop-color="#56b6c2"/>
-    <stop offset="70%" stop-color="#56b6c2"/>
-    <stop offset="100%" stop-color="#56b6c2"/>
-    
-    </linearGradient>
-  
-    <linearGradient id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-AA-9" gradientTransform="rotate(45)">
-    
-    <stop offset="0%" stop-color="#56b6c2"/>
-    <stop offset="70%" stop-color="#56b6c2"/>
-    <stop offset="100%" stop-color="#56b6c2"/>
-    
-    </linearGradient>
-  
-    <linearGradient id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-AA-11" gradientTransform="rotate(45)">
-    
-    <stop offset="0%" stop-color="#56b6c2"/>
-    <stop offset="70%" stop-color="#56b6c2"/>
-    <stop offset="100%" stop-color="#56b6c2"/>
-    
-    </linearGradient>
-  
-    <linearGradient id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-AA-13" gradientTransform="rotate(45)">
-    
-    <stop offset="0%" stop-color="#56b6c2"/>
-    <stop offset="70%" stop-color="#56b6c2"/>
-    <stop offset="100%" stop-color="#56b6c2"/>
-    
-    </linearGradient>
-  
-    <linearGradient id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-A-15" gradientTransform="rotate(45)">
-    
-    <stop offset="0%" stop-color="#56b6c2"/>
-    <stop offset="70%" stop-color="#56b6c2"/>
-    <stop offset="100%" stop-color="#56b6c2"/>
-    
-    </linearGradient>
-  
-    <linearGradient id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-B-17" gradientTransform="rotate(45)">
-    
-    <stop offset="0%" stop-color="#c678dd"/>
-    <stop offset="70%" stop-color="#c678dd"/>
-    <stop offset="100%" stop-color="#c678dd"/>
-    
-    </linearGradient>
-  
-    <linearGradient id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-B-19" gradientTransform="rotate(45)">
-    
-    <stop offset="0%" stop-color="#c678dd"/>
-    <stop offset="70%" stop-color="#c678dd"/>
-    <stop offset="100%" stop-color="#c678dd"/>
-    
-    </linearGradient>
-  
-    <linearGradient id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-C-21" gradientTransform="rotate(45)">
-    
-      <stop offset="0%" stop-color="#abb2bf"/>
-      <stop offset="50%" stop-color="#abb2bf"/>
-      <stop offset="100%" stop-color="#abb2bf"/>
-  
-    </linearGradient>
-  <style>
-    @keyframes MultiLanguageRankAnimation {
-      from {
-        width: 0px;
-      }
-      to {
-        width: 80px;
-      }
-    }
-    #MultiLanguage-rank-progress{
-      animation: MultiLanguageRankAnimation 1s forwards ease-in-out;
-    }
-    </style><style>
-    @keyframes CommitsRankAnimation {
-      from {
-        width: 0px;
-      }
-      to {
-        width: 5.92px;
-      }
-    }
-    #Commits-rank-progress{
-      animation: CommitsRankAnimation 1s forwards ease-in-out;
-    }
-    </style><style>
-    @keyframes StarsRankAnimation {
-      from {
-        width: 0px;
-      }
-      to {
-        width: 72px;
-      }
-    }
-    #Stars-rank-progress{
-      animation: StarsRankAnimation 1s forwards ease-in-out;
-    }
-    </style><style>
-    @keyframes FollowersRankAnimation {
-      from {
-        width: 0px;
-      }
-      to {
-        width: 28.799999999999997px;
-      }
-    }
-    #Followers-rank-progress{
-      animation: FollowersRankAnimation 1s forwards ease-in-out;
-    }
-    </style><style>
-    @keyframes RepositoriesRankAnimation {
-      from {
-        width: 0px;
-      }
-      to {
-        width: 28px;
-      }
-    }
-    #Repositories-rank-progress{
-      animation: RepositoriesRankAnimation 1s forwards ease-in-out;
-    }
-    </style><style>
-    @keyframes ExperienceRankAnimation {
-      from {
-        width: 0px;
-      }
-      to {
-        width: 22.857142857142854px;
-      }
-    }
-    #Experience-rank-progress{
-      animation: ExperienceRankAnimation 1s forwards ease-in-out;
-    }
-    </style><style>
-    @keyframes PullRequestRankAnimation {
-      from {
-        width: 0px;
-      }
-      to {
-        width: 56px;
-      }
-    }
-    #PullRequest-rank-progress{
-      animation: PullRequestRankAnimation 1s forwards ease-in-out;
-    }
-    </style><style>
-    @keyframes ReviewsRankAnimation {
-      from {
-        width: 0px;
-      }
-      to {
-        width: 16px;
-      }
-    }
-    #Reviews-rank-progress{
-      animation: ReviewsRankAnimation 1s forwards ease-in-out;
-    }
-    </style><style>
-    @keyframes IssuesRankAnimation {
-      from {
-        width: 0px;
-      }
-      to {
-        width: 35.55555555555556px;
-      }
-    }
-    #Issues-rank-progress{
-      animation: IssuesRankAnimation 1s forwards ease-in-out;
-    }
-    </style>
-            <clipPath id="item-8e898692-ced9-4874-a2d2-10df2f969405-outer_rectangle-23">
-                <rect width="495" height="195" rx="10"/>
-            </clipPath>
-            <mask id="item-8e898692-ced9-4874-a2d2-10df2f969405-mask_out_ring_behind_fire-24">
-                <rect width="495" height="195" fill="white"/>
-                <ellipse id="item-8e898692-ced9-4874-a2d2-10df2f969405-mask-ellipse-25" cx="247.5" cy="32" rx="13" ry="18" fill="black"/>
-            </mask>
-            
-        <style>
-            @keyframes currstreak {
-                0% { font-size: 3px; opacity: 0.2; }
-                80% { font-size: 34px; opacity: 1; }
-                100% { font-size: 28px; opacity: 1; }
-            }
-            @keyframes fadein {
-                0% { opacity: 0; }
-                100% { opacity: 1; }
-            }
-        </style></defs><g transform="translate(-96.22974046204877, -20.670062033716064) scale(0.9818181818181818, 1.2974358974358975)">
-        <title id="item-ee90d6c8-849b-4997-b2ba-80f1dff77e39-titleId-0">whiteSHADOW1234's GitHub Stats, Rank: A+</title>
-        <desc id="item-ee90d6c8-849b-4997-b2ba-80f1dff77e39-descId-1">Total Stars Earned: 95, Total Commits in 2025 : 95, Total PRs: 17, Total Issues: 5, Contributed to (last year): 3</desc>
-        
 
         
 
@@ -359,7 +128,7 @@
     </svg>
   
       <text class="stat  bold" x="25" y="12.5">Total Commits (2025):</text>
-      <text class="stat  bold" x="219.01" y="12.5" data-testid="commits">543</text>
+      <text class="stat  bold" x="219.01" y="12.5" data-testid="commits">541</text>
     </g>
   </g><g transform="translate(0, 50)">
     <g class="stagger" style="animation-delay: 750ms" transform="translate(25, 0)">
@@ -395,10 +164,42 @@
     </svg>
   
         </g>
-      </g><g transform="translate(423, -11) scale(1.36, 1.6928571428571428)">
-        <title id="item-7e28e495-0660-437c-87a2-88ed090d1dfa-titleId-2"/>
-        <desc id="item-7e28e495-0660-437c-87a2-88ed090d1dfa-descId-3"/>
-        
+      </g><g id="item-7e28e495-0660-437c-87a2-88ed090d1dfa" transform="translate(423, -11) scale(1.36, 1.6928571428571428)"><defs/>
+        <title id="titleId"/>
+        <desc id="descId"/>
+        <style>
+          .header {
+            font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
+            fill: #c792ea;
+            animation: fadeInAnimation 0.8s ease-in-out forwards;
+          }
+          @supports(-moz-appearance: auto) {
+            /* Selector detects Firefox */
+            .header { font-size: 15.5px; }
+          }
+          .lang-name { font: 400 11px 'Segoe UI', Ubuntu, Sans-Serif; fill: #7fdbca }
+
+          
+    /* Animations */
+    @keyframes scaleInAnimation {
+      from {
+        transform: translate(-5px, 5px) scale(0);
+      }
+      to {
+        transform: translate(-5px, 5px) scale(1);
+      }
+    }
+    @keyframes fadeInAnimation {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+  
+          * { animation-duration: 0s !important; animation-delay: 0s !important; }
+        </style>
 
         
 
@@ -416,17 +217,17 @@
           
     <svg data-testid="lang-items" x="25">
       
-    <mask id="item-7e28e495-0660-437c-87a2-88ed090d1dfa-rect-mask-4">
+    <mask id="rect-mask">
       <rect x="0" y="0" width="300" height="8" fill="white" rx="5"/>
     </mask>
     
-        <rect mask="url(#item-7e28e495-0660-437c-87a2-88ed090d1dfa-rect-mask-4)" data-testid="lang-progress" x="0" y="0" width="217.29" height="8" fill="#e4cc98"/>
+        <rect mask="url(#rect-mask)" data-testid="lang-progress" x="0" y="0" width="217.29" height="8" fill="#e4cc98"/>
       
-        <rect mask="url(#item-7e28e495-0660-437c-87a2-88ed090d1dfa-rect-mask-4)" data-testid="lang-progress" x="217.29" y="0" width="34.11" height="8" fill="#3572A5"/>
+        <rect mask="url(#rect-mask)" data-testid="lang-progress" x="217.29" y="0" width="34.11" height="8" fill="#3572A5"/>
       
-        <rect mask="url(#item-7e28e495-0660-437c-87a2-88ed090d1dfa-rect-mask-4)" data-testid="lang-progress" x="251.39999999999998" y="0" width="24.71" height="8" fill="#f34b7d"/>
+        <rect mask="url(#rect-mask)" data-testid="lang-progress" x="251.39999999999998" y="0" width="24.71" height="8" fill="#f34b7d"/>
       
-        <rect mask="url(#item-7e28e495-0660-437c-87a2-88ed090d1dfa-rect-mask-4)" data-testid="lang-progress" x="276.10999999999996" y="0" width="23.9" height="8" fill="#00B4AB"/>
+        <rect mask="url(#rect-mask)" data-testid="lang-progress" x="276.10999999999996" y="0" width="23.9" height="8" fill="#00B4AB"/>
       
 
     <g transform="translate(0, 25)">
@@ -464,7 +265,79 @@
     </svg>
   
         </g>
-      </g><g transform="translate(-2, 214) scale(0.9352272727272727, 0.8909090909090909)">
+      </g><g id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321" transform="translate(-2, 214) scale(0.9352272727272727, 0.8909090909090909)"><defs>
+    <linearGradient id="SECRET" gradientTransform="rotate(45)">
+    
+    <stop offset="0%" stop-color="#e06c75"/>
+    <stop offset="50%" stop-color="#c678dd"/>
+    <stop offset="100%" stop-color="#61afef"/>
+    
+    </linearGradient>
+  
+    <linearGradient id="AAA" gradientTransform="rotate(45)">
+    
+    <stop offset="0%" stop-color="#56b6c2"/>
+    <stop offset="70%" stop-color="#56b6c2"/>
+    <stop offset="100%" stop-color="#56b6c2"/>
+    
+    </linearGradient>
+  
+    <linearGradient id="AA" gradientTransform="rotate(45)">
+    
+    <stop offset="0%" stop-color="#56b6c2"/>
+    <stop offset="70%" stop-color="#56b6c2"/>
+    <stop offset="100%" stop-color="#56b6c2"/>
+    
+    </linearGradient>
+  
+    <linearGradient id="AA" gradientTransform="rotate(45)">
+    
+    <stop offset="0%" stop-color="#56b6c2"/>
+    <stop offset="70%" stop-color="#56b6c2"/>
+    <stop offset="100%" stop-color="#56b6c2"/>
+    
+    </linearGradient>
+  
+    <linearGradient id="AA" gradientTransform="rotate(45)">
+    
+    <stop offset="0%" stop-color="#56b6c2"/>
+    <stop offset="70%" stop-color="#56b6c2"/>
+    <stop offset="100%" stop-color="#56b6c2"/>
+    
+    </linearGradient>
+  
+    <linearGradient id="A" gradientTransform="rotate(45)">
+    
+    <stop offset="0%" stop-color="#56b6c2"/>
+    <stop offset="70%" stop-color="#56b6c2"/>
+    <stop offset="100%" stop-color="#56b6c2"/>
+    
+    </linearGradient>
+  
+    <linearGradient id="B" gradientTransform="rotate(45)">
+    
+    <stop offset="0%" stop-color="#c678dd"/>
+    <stop offset="70%" stop-color="#c678dd"/>
+    <stop offset="100%" stop-color="#c678dd"/>
+    
+    </linearGradient>
+  
+    <linearGradient id="B" gradientTransform="rotate(45)">
+    
+    <stop offset="0%" stop-color="#c678dd"/>
+    <stop offset="70%" stop-color="#c678dd"/>
+    <stop offset="100%" stop-color="#c678dd"/>
+    
+    </linearGradient>
+  
+    <linearGradient id="C" gradientTransform="rotate(45)">
+    
+      <stop offset="0%" stop-color="#abb2bf"/>
+      <stop offset="50%" stop-color="#abb2bf"/>
+      <stop offset="100%" stop-color="#abb2bf"/>
+  
+    </linearGradient>
+  </defs>
       
         <svg x="0" y="0" width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="0.5" y="0.5" rx="4.5" width="109" height="109" stroke="#e1e4e8" fill="#282c34" stroke-opacity="1" fill-opacity="1"/>
@@ -472,7 +345,7 @@
   
   
   <defs>
-    <linearGradient id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-SECRET-5" gradientTransform="rotate(45)">
+    <linearGradient id="SECRET" gradientTransform="rotate(45)">
     
     <stop offset="0%" stop-color="#e06c75"/>
     <stop offset="50%" stop-color="#c678dd"/>
@@ -480,7 +353,7 @@
     
     </linearGradient>
   </defs>
-  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-SECRET-5)" xmlns="http://www.w3.org/2000/svg">
+  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#SECRET)" xmlns="http://www.w3.org/2000/svg">
     
     <path d="M7 10h2v4H7v-4z"/>
     <path d="M10 11c0 .552-.895 1-2 1s-2-.448-2-1 .895-1 2-1 2 .448 2 1z"/>
@@ -509,7 +382,7 @@
     }
     </style>
     <rect x="15" y="101" rx="1" width="80" height="3.2" opacity="0.3" fill="#e5c07b"/>
-    <rect id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-MultiLanguage-rank-progress-6" x="15" y="101" rx="1" height="3.2" fill="#e5c07b"/>
+    <rect id="MultiLanguage-rank-progress" x="15" y="101" rx="1" height="3.2" fill="#e5c07b"/>
   
         </svg>
         
@@ -558,7 +431,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
   
     </svg>
   <defs>
-    <linearGradient id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-AAA-7" gradientTransform="rotate(45)">
+    <linearGradient id="AAA" gradientTransform="rotate(45)">
     
     <stop offset="0%" stop-color="#56b6c2"/>
     <stop offset="70%" stop-color="#56b6c2"/>
@@ -566,7 +439,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     
     </linearGradient>
   </defs>
-  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-AAA-7)" xmlns="http://www.w3.org/2000/svg">
+  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#AAA)" xmlns="http://www.w3.org/2000/svg">
     
     <path d="M7 10h2v4H7v-4z"/>
     <path d="M10 11c0 .552-.895 1-2 1s-2-.448-2-1 .895-1 2-1 2 .448 2 1z"/>
@@ -595,7 +468,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     }
     </style>
     <rect x="15" y="101" rx="1" width="80" height="3.2" opacity="0.3" fill="#e5c07b"/>
-    <rect id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-Commits-rank-progress-8" x="15" y="101" rx="1" height="3.2" fill="#e5c07b"/>
+    <rect id="Commits-rank-progress" x="15" y="101" rx="1" height="3.2" fill="#e5c07b"/>
   
         </svg>
         
@@ -635,7 +508,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
   
     </svg>
   <defs>
-    <linearGradient id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-AA-9" gradientTransform="rotate(45)">
+    <linearGradient id="AA" gradientTransform="rotate(45)">
     
     <stop offset="0%" stop-color="#56b6c2"/>
     <stop offset="70%" stop-color="#56b6c2"/>
@@ -643,7 +516,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     
     </linearGradient>
   </defs>
-  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-AA-13)" xmlns="http://www.w3.org/2000/svg">
+  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#AA)" xmlns="http://www.w3.org/2000/svg">
     
     <path d="M7 10h2v4H7v-4z"/>
     <path d="M10 11c0 .552-.895 1-2 1s-2-.448-2-1 .895-1 2-1 2 .448 2 1z"/>
@@ -672,7 +545,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     }
     </style>
     <rect x="15" y="101" rx="1" width="80" height="3.2" opacity="0.3" fill="#e5c07b"/>
-    <rect id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-Stars-rank-progress-10" x="15" y="101" rx="1" height="3.2" fill="#e5c07b"/>
+    <rect id="Stars-rank-progress" x="15" y="101" rx="1" height="3.2" fill="#e5c07b"/>
   
         </svg>
         
@@ -712,7 +585,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
   
     </svg>
   <defs>
-    <linearGradient id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-AA-11" gradientTransform="rotate(45)">
+    <linearGradient id="AA" gradientTransform="rotate(45)">
     
     <stop offset="0%" stop-color="#56b6c2"/>
     <stop offset="70%" stop-color="#56b6c2"/>
@@ -720,7 +593,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     
     </linearGradient>
   </defs>
-  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-AA-13)" xmlns="http://www.w3.org/2000/svg">
+  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#AA)" xmlns="http://www.w3.org/2000/svg">
     
     <path d="M7 10h2v4H7v-4z"/>
     <path d="M10 11c0 .552-.895 1-2 1s-2-.448-2-1 .895-1 2-1 2 .448 2 1z"/>
@@ -749,7 +622,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     }
     </style>
     <rect x="15" y="101" rx="1" width="80" height="3.2" opacity="0.3" fill="#e5c07b"/>
-    <rect id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-Followers-rank-progress-12" x="15" y="101" rx="1" height="3.2" fill="#e5c07b"/>
+    <rect id="Followers-rank-progress" x="15" y="101" rx="1" height="3.2" fill="#e5c07b"/>
   
         </svg>
         
@@ -789,7 +662,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
   
     </svg>
   <defs>
-    <linearGradient id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-AA-13" gradientTransform="rotate(45)">
+    <linearGradient id="AA" gradientTransform="rotate(45)">
     
     <stop offset="0%" stop-color="#56b6c2"/>
     <stop offset="70%" stop-color="#56b6c2"/>
@@ -797,7 +670,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     
     </linearGradient>
   </defs>
-  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-AA-13)" xmlns="http://www.w3.org/2000/svg">
+  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#AA)" xmlns="http://www.w3.org/2000/svg">
     
     <path d="M7 10h2v4H7v-4z"/>
     <path d="M10 11c0 .552-.895 1-2 1s-2-.448-2-1 .895-1 2-1 2 .448 2 1z"/>
@@ -826,7 +699,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     }
     </style>
     <rect x="15" y="101" rx="1" width="80" height="3.2" opacity="0.3" fill="#e5c07b"/>
-    <rect id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-Repositories-rank-progress-14" x="15" y="101" rx="1" height="3.2" fill="#e5c07b"/>
+    <rect id="Repositories-rank-progress" x="15" y="101" rx="1" height="3.2" fill="#e5c07b"/>
   
         </svg>
         
@@ -857,7 +730,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
 </svg>
   
   <defs>
-    <linearGradient id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-A-15" gradientTransform="rotate(45)">
+    <linearGradient id="A" gradientTransform="rotate(45)">
     
     <stop offset="0%" stop-color="#56b6c2"/>
     <stop offset="70%" stop-color="#56b6c2"/>
@@ -865,7 +738,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     
     </linearGradient>
   </defs>
-  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-A-15)" xmlns="http://www.w3.org/2000/svg">
+  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#A)" xmlns="http://www.w3.org/2000/svg">
     
     <path d="M7 10h2v4H7v-4z"/>
     <path d="M10 11c0 .552-.895 1-2 1s-2-.448-2-1 .895-1 2-1 2 .448 2 1z"/>
@@ -894,7 +767,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     }
     </style>
     <rect x="15" y="101" rx="1" width="80" height="3.2" opacity="0.3" fill="#e5c07b"/>
-    <rect id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-Experience-rank-progress-16" x="15" y="101" rx="1" height="3.2" fill="#e5c07b"/>
+    <rect id="Experience-rank-progress" x="15" y="101" rx="1" height="3.2" fill="#e5c07b"/>
   
         </svg>
         
@@ -904,7 +777,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
   
   
   <defs>
-    <linearGradient id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-B-17" gradientTransform="rotate(45)">
+    <linearGradient id="B" gradientTransform="rotate(45)">
     
     <stop offset="0%" stop-color="#c678dd"/>
     <stop offset="70%" stop-color="#c678dd"/>
@@ -912,7 +785,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     
     </linearGradient>
   </defs>
-  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-B-19)" xmlns="http://www.w3.org/2000/svg">
+  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#B)" xmlns="http://www.w3.org/2000/svg">
     
     <path d="M7 10h2v4H7v-4z"/>
     <path d="M10 11c0 .552-.895 1-2 1s-2-.448-2-1 .895-1 2-1 2 .448 2 1z"/>
@@ -941,7 +814,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     }
     </style>
     <rect x="15" y="101" rx="1" width="80" height="3.2" opacity="0.3" fill="#e5c07b"/>
-    <rect id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-PullRequest-rank-progress-18" x="15" y="101" rx="1" height="3.2" fill="#e5c07b"/>
+    <rect id="PullRequest-rank-progress" x="15" y="101" rx="1" height="3.2" fill="#e5c07b"/>
   
         </svg>
         
@@ -951,7 +824,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
   
   
   <defs>
-    <linearGradient id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-B-19" gradientTransform="rotate(45)">
+    <linearGradient id="B" gradientTransform="rotate(45)">
     
     <stop offset="0%" stop-color="#c678dd"/>
     <stop offset="70%" stop-color="#c678dd"/>
@@ -959,7 +832,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     
     </linearGradient>
   </defs>
-  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-B-19)" xmlns="http://www.w3.org/2000/svg">
+  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#B)" xmlns="http://www.w3.org/2000/svg">
     
     <path d="M7 10h2v4H7v-4z"/>
     <path d="M10 11c0 .552-.895 1-2 1s-2-.448-2-1 .895-1 2-1 2 .448 2 1z"/>
@@ -988,7 +861,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     }
     </style>
     <rect x="15" y="101" rx="1" width="80" height="3.2" opacity="0.3" fill="#e5c07b"/>
-    <rect id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-Reviews-rank-progress-20" x="15" y="101" rx="1" height="3.2" fill="#e5c07b"/>
+    <rect id="Reviews-rank-progress" x="15" y="101" rx="1" height="3.2" fill="#e5c07b"/>
   
         </svg>
         
@@ -998,7 +871,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
   
   
   <defs>
-    <linearGradient id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-C-21" gradientTransform="rotate(45)">
+    <linearGradient id="C" gradientTransform="rotate(45)">
     
       <stop offset="0%" stop-color="#abb2bf"/>
       <stop offset="50%" stop-color="#abb2bf"/>
@@ -1006,7 +879,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
   
     </linearGradient>
   </defs>
-  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-C-21)" xmlns="http://www.w3.org/2000/svg">
+  <svg x="28" y="20" width="100" height="100" viewBox="0 0 30 30" fill="url(#C)" xmlns="http://www.w3.org/2000/svg">
     
     <path d="M7 10h2v4H7v-4z"/>
     <path d="M10 11c0 .552-.895 1-2 1s-2-.448-2-1 .895-1 2-1 2 .448 2 1z"/>
@@ -1035,101 +908,11 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
     }
     </style>
     <rect x="15" y="101" rx="1" width="80" height="3.2" opacity="0.3" fill="#e5c07b"/>
-    <rect id="item-bf3b060f-1d4c-4e7c-8a28-7234f6567321-Issues-rank-progress-22" x="15" y="101" rx="1" height="3.2" fill="#e5c07b"/>
+    <rect id="Issues-rank-progress" x="15" y="101" rx="1" height="3.2" fill="#e5c07b"/>
   
         </svg>
         
-    </g><g transform="translate(80, 325) scale(1.290909090909091, 1.1435897435897435)" style="isolation: isolate">
-        
-        
-        <g clip-path="url(#item-8e898692-ced9-4874-a2d2-10df2f969405-outer_rectangle-23)">
-            <g style="isolation: isolate">
-                <rect stroke="#E4E2E2" fill="#1A1B27" rx="10" x="0.5" y="0.5" width="494" height="194"/>
-            </g>
-            <g style="isolation: isolate">
-                <line x1="165" y1="28" x2="165" y2="170" vector-effect="non-scaling-stroke" stroke-width="1" stroke="#E4E2E2" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="3"/>
-                <line x1="330" y1="28" x2="330" y2="170" vector-effect="non-scaling-stroke" stroke-width="1" stroke="#E4E2E2" stroke-linejoin="miter" stroke-linecap="square" stroke-miterlimit="3"/>
-            </g>
-            <g style="isolation: isolate">
-                <!-- Total Contributions big number -->
-                <g transform="translate(82.5, 48)">
-                    <text x="0" y="32" stroke-width="0" text-anchor="middle" fill="#70A5FD" stroke="none" font-family="&quot;Segoe UI&quot;, Ubuntu, sans-serif" font-weight="700" font-size="28px" font-style="normal" style="opacity: 0; animation: fadein 0.5s linear forwards 0.6s">
-                        1,230
-                    </text>
-                </g>
-
-                <!-- Total Contributions label -->
-                <g transform="translate(82.5, 84)">
-                    <text x="0" y="32" stroke-width="0" text-anchor="middle" fill="#70A5FD" stroke="none" font-family="&quot;Segoe UI&quot;, Ubuntu, sans-serif" font-weight="400" font-size="14px" font-style="normal" style="opacity: 0; animation: fadein 0.5s linear forwards 0.7s">
-                        Total Contributions
-                    </text>
-                </g>
-
-                <!-- Total Contributions range -->
-                <g transform="translate(82.5, 114)">
-                    <text x="0" y="32" stroke-width="0" text-anchor="middle" fill="#38BDAE" stroke="none" font-family="&quot;Segoe UI&quot;, Ubuntu, sans-serif" font-weight="400" font-size="12px" font-style="normal" style="opacity: 0; animation: fadein 0.5s linear forwards 0.8s">
-                        Sep 22, 2021 - Present
-                    </text>
-                </g>
-            </g>
-            <g style="isolation: isolate">
-                <!-- Current Streak label -->
-                <g transform="translate(247.5, 108)">
-                    <text x="0" y="32" stroke-width="0" text-anchor="middle" fill="#BF91F3" stroke="none" font-family="&quot;Segoe UI&quot;, Ubuntu, sans-serif" font-weight="700" font-size="14px" font-style="normal" style="opacity: 0; animation: fadein 0.5s linear forwards 0.9s">
-                        Current Streak
-                    </text>
-                </g>
-
-                <!-- Current Streak range -->
-                <g transform="translate(247.5, 145)">
-                    <text x="0" y="21" stroke-width="0" text-anchor="middle" fill="#38BDAE" stroke="none" font-family="&quot;Segoe UI&quot;, Ubuntu, sans-serif" font-weight="400" font-size="12px" font-style="normal" style="opacity: 0; animation: fadein 0.5s linear forwards 0.9s">
-                        Apr 15
-                    </text>
-                </g>
-
-                <!-- Ring around number -->
-                <g mask="url(#item-8e898692-ced9-4874-a2d2-10df2f969405-mask_out_ring_behind_fire-24)">
-                    <circle cx="247.5" cy="71" r="40" fill="none" stroke="#70A5FD" stroke-width="5" style="opacity: 0; animation: fadein 0.5s linear forwards 0.4s"/>
-                </g>
-                <!-- Fire icon -->
-                <g transform="translate(247.5, 19.5)" stroke-opacity="0" style="opacity: 0; animation: fadein 0.5s linear forwards 0.6s">
-                    <path d="M -12 -0.5 L 15 -0.5 L 15 23.5 L -12 23.5 L -12 -0.5 Z" fill="none"/>
-                    <path d="M 1.5 0.67 C 1.5 0.67 2.24 3.32 2.24 5.47 C 2.24 7.53 0.89 9.2 -1.17 9.2 C -3.23 9.2 -4.79 7.53 -4.79 5.47 L -4.76 5.11 C -6.78 7.51 -8 10.62 -8 13.99 C -8 18.41 -4.42 22 0 22 C 4.42 22 8 18.41 8 13.99 C 8 8.6 5.41 3.79 1.5 0.67 Z M -0.29 19 C -2.07 19 -3.51 17.6 -3.51 15.86 C -3.51 14.24 -2.46 13.1 -0.7 12.74 C 1.07 12.38 2.9 11.53 3.92 10.16 C 4.31 11.45 4.51 12.81 4.51 14.2 C 4.51 16.85 2.36 19 -0.29 19 Z" fill="#70A5FD" stroke-opacity="0"/>
-                </g>
-
-                <!-- Current Streak big number -->
-                <g transform="translate(247.5, 48)">
-                    <text x="0" y="32" stroke-width="0" text-anchor="middle" fill="#BF91F3" stroke="none" font-family="&quot;Segoe UI&quot;, Ubuntu, sans-serif" font-weight="700" font-size="28px" font-style="normal" style="animation: currstreak 0.6s linear forwards">
-                        1
-                    </text>
-                </g>
-
-            </g>
-            <g style="isolation: isolate">
-                <!-- Longest Streak big number -->
-                <g transform="translate(412.5, 48)">
-                    <text x="0" y="32" stroke-width="0" text-anchor="middle" fill="#70A5FD" stroke="none" font-family="&quot;Segoe UI&quot;, Ubuntu, sans-serif" font-weight="700" font-size="28px" font-style="normal" style="opacity: 0; animation: fadein 0.5s linear forwards 1.2s">
-                        50
-                    </text>
-                </g>
-
-                <!-- Longest Streak label -->
-                <g transform="translate(412.5, 84)">
-                    <text x="0" y="32" stroke-width="0" text-anchor="middle" fill="#70A5FD" stroke="none" font-family="&quot;Segoe UI&quot;, Ubuntu, sans-serif" font-weight="400" font-size="14px" font-style="normal" style="opacity: 0; animation: fadein 0.5s linear forwards 1.3s">
-                        Longest Streak
-                    </text>
-                </g>
-
-                <!-- Longest Streak range -->
-                <g transform="translate(412.5, 114)">
-                    <text x="0" y="32" stroke-width="0" text-anchor="middle" fill="#38BDAE" stroke="none" font-family="&quot;Segoe UI&quot;, Ubuntu, sans-serif" font-weight="400" font-size="12px" font-style="normal" style="opacity: 0; animation: fadein 0.5s linear forwards 1.4s">
-                        Feb 21, 2023 - Apr 11, 2023
-                    </text>
-                </g>
-            </g>
-            
-        </g>
-    </g><g transform="translate(-112.45271176966187, 300) scale(0.5405405405405406, 0.539568345323741)">
+    </g><g id="item-a5e20d49-9593-4278-8294-0d72a887d5a6" transform="translate(-112.45271176966187, 300) scale(0.5405405405405406, 0.539568345323741)"><defs/>
 <rect x="19" y="537" width="390" height="6" transform="rotate(-90 19 537)" fill="#BD0909"/>
 <rect y="555" width="555" height="13" transform="rotate(-90 0 555)" fill="#BD0909"/>
 <rect x="19" y="449" width="7" height="22" transform="rotate(-90 19 449)" fill="#BD0909"/>
@@ -1182,7 +965,7 @@ Created by potrace 1.15, written by Peter Selinger 2001-2017
 <rect width="14" height="4" transform="matrix(1 0 0 -1 173 527)" fill="#BD0909"/>
 <rect width="18" height="8" transform="matrix(0 1 1 0 173 509)" fill="#BD0909"/>
 <rect width="16" height="4" transform="matrix(0 1 1 0 194 510)" fill="#BD0909"/>
-</g><g transform="translate(600.2567397548477, 300) scale(0.5405405405405406, 0.539568345323741)">
+</g><g id="item-bbe347b7-d50b-4a4d-b79d-39bb8aa8e6b2" transform="translate(600.2567397548477, 300) scale(0.5405405405405406, 0.539568345323741)"><defs/>
 <rect width="390" height="6" transform="matrix(0 -1 -1 0 536 537)" fill="#BD0909"/>
 <rect width="555" height="13" transform="matrix(0 -1 -1 0 555 555)" fill="#BD0909"/>
 <rect width="7" height="22" transform="matrix(0 -1 -1 0 536 449)" fill="#BD0909"/>
