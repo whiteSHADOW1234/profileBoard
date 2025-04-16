@@ -103,7 +103,7 @@ jobs:
       - name: Copy merged.svg to public folder
         run: |
           mkdir -p public
-          cp merged.svg public/merged.svg
+          cp README.svg public/merged.svg
 
       - name: Commit and push updated SVG
         run: |
