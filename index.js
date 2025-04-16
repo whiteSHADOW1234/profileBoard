@@ -3,10 +3,84 @@ import * as exec from '@actions/exec';
 import * as glob from '@actions/glob';
 import { promises as fs } from 'fs';
 import path from 'path';
-import fetch from 'node-fetch';
+import fetch from 'node-fetch'; // Using node-fetch v2 for CommonJS compatibility if needed, or ensure project is ESM
 import { optimize } from 'svgo';
 // *** Import DOMParser and XMLSerializer from xmldom for SVG manipulation ***
 import { DOMParser, XMLSerializer } from 'xmldom';
+
+// *** START: Added Fetch with Retry Logic ***
+/**
+ * Fetches content from a URL with retry logic.
+ * Specifically handles fetching SVG text, including potential JSON wrappers.
+ * @param {string} url The URL to fetch.
+ * @param {number} maxRetries Maximum number of retry attempts.
+ * @param {number} retryDelay Delay between retries in milliseconds.
+ * @returns {Promise<string>} The fetched text content (expected to be SVG or JSON containing SVG).
+ * @throws {Error} If fetching fails after all retries or content type is unexpected.
+ */
+async function fetchWithRetry(url, maxRetries = 3, retryDelay = 1000) {
+  let lastError = null;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    core.info(`Attempt ${attempt}/${maxRetries} to fetch ${url}`);
+    try {
+      const response = await fetch(url);
+      if (response.ok) {
+        const contentType = response.headers.get('content-type');
+        let content = await response.text();
+        core.debug(`Fetched raw content (first 100 chars): ${content.substring(0, 100)}`);
+
+        // Handle common cases where API returns JSON containing SVG
+        if (contentType?.includes('application/json')) {
+          core.info(`Response from ${url} is JSON, attempting to extract SVG...`);
+          try {
+            const jsonData = JSON.parse(content);
+            if (typeof jsonData.svg === 'string') content = jsonData.svg;
+            else if (typeof jsonData.data === 'string') content = jsonData.data; // Common alternative field
+            else if (typeof jsonData.content === 'string') content = jsonData.content; // Another possibility
+            else throw new Error('Could not find SVG string in JSON fields "svg", "data", or "content".');
+            core.info(`Successfully extracted SVG from JSON.`);
+            core.debug(`Extracted SVG content (first 100 chars): ${content.substring(0, 100)}`);
+          } catch (e) {
+            core.warning(`Failed to parse JSON or extract SVG from ${url}: ${e.message}. Trying to parse content as SVG directly.`);
+            // Content might still be valid SVG if JSON parsing failed, proceed cautiously
+          }
+        }
+
+        // Handle cases where the fetched content *is* a data URI (less common for direct fetch, but possible)
+        if (content.trim().startsWith('data:image/svg+xml;base64,')) {
+          core.info(`Decoding base64 SVG data URI from ${url}`);
+          const base64Data = content.trim().replace('data:image/svg+xml;base64,', '');
+          content = Buffer.from(base64Data, 'base64').toString('utf8');
+          core.debug(`Decoded SVG content (first 100 chars): ${content.substring(0, 100)}`);
+        }
+
+        // Basic validation: Check if it looks like SVG after potential extraction/decoding
+        if (!content.trim().startsWith('<svg') && !content.trim().startsWith('<?xml')) {
+          // Throw error if it doesn't look like SVG after processing
+          throw new Error(`Content from ${url} does not appear to be valid SVG after processing. Content starts with: ${content.substring(0, 100)}`);
+        }
+
+        core.info(`Successfully fetched content from ${url} on attempt ${attempt}`);
+        return content; // Return the raw SVG text (or extracted SVG text)
+      } else {
+        lastError = new Error(`Failed to fetch ${url}: ${response.status} ${response.statusText}`);
+      }
+    } catch (error) {
+      lastError = error; // Store the error from this attempt
+    }
+
+    // If not the last attempt, wait before retrying
+    if (attempt < maxRetries) {
+      core.warning(`Attempt ${attempt} failed for ${url}: ${lastError.message}. Retrying in ${retryDelay}ms...`);
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
+    }
+  }
+
+  // If loop finishes, all retries failed
+  core.error(`Failed to fetch ${url} after ${maxRetries} attempts.`);
+  throw lastError; // Throw the last encountered error
+}
+// *** END: Added Fetch with Retry Logic ***
 
 async function run() {
   try {
@@ -192,6 +266,8 @@ async function run() {
             // If makeIdUnique returns the original ID, it means it was already unique globally
             // We still need to record it in the local idMap for reference updates below
             idMap[originalId] = originalId;
+            // Add it to the global set as well, in case it wasn't added by makeIdUnique (edge case)
+            usedIds.add(originalId);
         }
       }
 
@@ -225,46 +301,21 @@ async function run() {
 
         // --- Fetch or Read Content ---
         if (item.url.startsWith('http://') || item.url.startsWith('https://')) {
-          core.info(`Fetching remote content from URL: ${item.url}`);
-          const response = await fetch(item.url);
-          if (!response.ok) {
-            throw new Error(`Failed to fetch ${item.url}: ${response.status} ${response.statusText}`);
-          }
-          const contentType = response.headers.get('content-type');
-
           if (isSvgType) {
-            // *** Fetch SVG as raw text ***
-            content = await response.text();
-            core.debug(`Fetched raw content (first 100 chars): ${content.substring(0,100)}`);
-
-            // Handle common cases where API returns JSON containing SVG
-            if (contentType?.includes('application/json')) {
-              core.info(`Response from ${item.url} is JSON, attempting to extract SVG...`);
-              try {
-                const jsonData = JSON.parse(content);
-                if (typeof jsonData.svg === 'string') content = jsonData.svg;
-                else if (typeof jsonData.data === 'string') content = jsonData.data; // Common alternative field
-                else if (typeof jsonData.content === 'string') content = jsonData.content; // Another possibility
-                else throw new Error('Could not find SVG string in JSON fields "svg", "data", or "content".');
-                core.info(`Successfully extracted SVG from JSON.`);
-                core.debug(`Extracted SVG content (first 100 chars): ${content.substring(0,100)}`);
-              } catch (e) {
-                  core.warning(`Failed to parse JSON or extract SVG from ${item.url}: ${e.message}. Trying to parse content as SVG directly.`);
-                  // Content might still be valid SVG if JSON parsing failed, proceed cautiously
-              }
-            }
-            // Handle cases where the fetched content *is* a data URI
-            if (content.trim().startsWith('data:image/svg+xml;base64,')) {
-              core.info(`Decoding base64 SVG data URI from ${item.url}`);
-              const base64Data = content.trim().replace('data:image/svg+xml;base64,', '');
-              content = Buffer.from(base64Data, 'base64').toString('utf8');
-              core.debug(`Decoded SVG content (first 100 chars): ${content.substring(0,100)}`);
-            }
-            // Basic validation: Check if it looks like SVG
-            if (!content.trim().startsWith('<svg') && !content.trim().startsWith('<?xml')) {
-              throw new Error(`Content from ${item.url} does not appear to be valid SVG. Content starts with: ${content.substring(0, 100)}`);
-            }
+            // *** START: Use fetchWithRetry for remote SVGs ***
+            core.info(`Fetching remote SVG content from URL: ${item.url}`);
+            // Fetch raw SVG text using the retry mechanism
+            content = await fetchWithRetry(item.url);
+            // Basic validation moved inside fetchWithRetry
+            // *** END: Use fetchWithRetry for remote SVGs ***
           } else { // Non-SVG remote content -> Create Data URI
+            core.info(`Fetching remote image content from URL: ${item.url}`);
+            // Fetch non-SVG normally (retry could be added here too if needed)
+            const response = await fetch(item.url);
+            if (!response.ok) {
+              throw new Error(`Failed to fetch ${item.url}: ${response.status} ${response.statusText}`);
+            }
+            const contentType = response.headers.get('content-type');
             const buffer = await response.arrayBuffer();
             const base64 = Buffer.from(buffer).toString('base64');
             const mimeType = contentType || `image/${item.type}` || 'image/png'; // Guess mime type if needed
@@ -302,13 +353,15 @@ async function run() {
 
         // --- Process Content ---
         if (isSvgType) {
-          // *** SVG INLINING LOGIC ***
+          // *** START: SVG INLINING LOGIC ***
           core.info(`Inlining SVG for item ${item.id} from ${item.url}`);
 
           // *** 1. Parse the fetched/read SVG string into a DOM ***
           let svgDoc;
           try {
-              svgDoc = parser.parseFromString(content, 'image/svg+xml');
+              // Use 'text/xml' for potentially better error reporting with xmldom,
+              // though 'image/svg+xml' is technically more correct.
+              svgDoc = parser.parseFromString(content, 'text/xml');
           } catch (parseError) {
               throw new Error(`DOMParser failed for item ${item.id}: ${parseError.message}`);
           }
@@ -317,10 +370,20 @@ async function run() {
           // *** Check for parser errors reported within the DOM ***
           const parseErrors = svgElement.getElementsByTagName('parsererror');
           if (parseErrors.length > 0) {
-              const errorText = parseErrors[0].textContent || 'Unknown parsing error';
+              // Try to get meaningful error text
+              let errorText = 'Unknown parsing error';
+              if (parseErrors[0].childNodes.length > 0) {
+                  // Often the error message is within a div inside parsererror
+                  const errorSource = parseErrors[0].getElementsByTagName('div')[0] || parseErrors[0];
+                  errorText = errorSource.textContent || errorText;
+              } else {
+                  errorText = parseErrors[0].textContent || errorText;
+              }
+
               // Filter out common benign namespace warnings from xmldom if needed
-              if (!errorText.includes("xmlns:xlink") || core.isDebug()) { // Show xlink warnings only in debug
-                 core.warning(`Parser warnings/errors for item ${item.id}: ${errorText}`);
+              const isBenignWarning = errorText.includes("attribute ") && errorText.includes(" isn't allowed here") && errorText.includes("xmlns:xlink");
+              if (!isBenignWarning || core.isDebug()) { // Show warnings unless benign (or if debugging)
+                 core.warning(`Parser warnings/errors for item ${item.id}: ${errorText.substring(0, 500)}...`); // Limit length
               }
               // Decide if it's a fatal error (e.g., if root element is not <svg>)
               if (svgElement.nodeName.toLowerCase() !== 'svg') {
@@ -336,7 +399,8 @@ async function run() {
           // *** 2. Create a group (<g>) element in the main SVG to hold this item's content ***
           const group = rootSvg.createElement('g');
           // Use a predictable, unique ID for the group itself
-          group.setAttribute('id', `item_group_${item.id}`);
+          const groupId = `item_group_${item.id.replace(/[^a-zA-Z0-9_-]/g, '_')}`; // Sanitize item ID for group ID
+          group.setAttribute('id', groupId);
 
 
           // *** 3. Calculate Scaling and Transformation ***
@@ -347,34 +411,39 @@ async function run() {
             if (viewBoxParts.length === 4) {
                 svgIntrinsicWidth = parseFloat(viewBoxParts[2]);
                 svgIntrinsicHeight = parseFloat(viewBoxParts[3]);
+                // If viewBox width/height are zero or negative, they are invalid
                 if (svgIntrinsicWidth <= 0) svgIntrinsicWidth = NaN;
                 if (svgIntrinsicHeight <= 0) svgIntrinsicHeight = NaN;
             }
           }
-          // Fallback to width/height attributes
+          // Fallback to width/height attributes (handle percentages/units if necessary - simplified here)
           if (isNaN(svgIntrinsicWidth) && svgElement.hasAttribute('width')) {
-            svgIntrinsicWidth = parseFloat(svgElement.getAttribute('width'));
+            const wAttr = svgElement.getAttribute('width');
+            if (!wAttr.includes('%')) svgIntrinsicWidth = parseFloat(wAttr);
           }
           if (isNaN(svgIntrinsicHeight) && svgElement.hasAttribute('height')) {
-            svgIntrinsicHeight = parseFloat(svgElement.getAttribute('height'));
+            const hAttr = svgElement.getAttribute('height');
+            if (!hAttr.includes('%')) svgIntrinsicHeight = parseFloat(hAttr);
           }
           // Final fallback: use target dimensions (scale = 1)
           if (isNaN(svgIntrinsicWidth) || svgIntrinsicWidth <= 0) {
-              core.warning(`Could not determine intrinsic width for SVG ${item.id}. Assuming target width ${item.width}.`);
+              core.warning(`Could not determine valid intrinsic width for SVG ${item.id}. Assuming target width ${item.width}.`);
               svgIntrinsicWidth = item.width;
           }
           if (isNaN(svgIntrinsicHeight) || svgIntrinsicHeight <= 0) {
-              core.warning(`Could not determine intrinsic height for SVG ${item.id}. Assuming target height ${item.height}.`);
+              core.warning(`Could not determine valid intrinsic height for SVG ${item.id}. Assuming target height ${item.height}.`);
               svgIntrinsicHeight = item.height;
           }
 
           // Apply transformations (translate and scale) to the group
           let transform = `translate(${item.x}, ${item.y})`;
-          if (svgIntrinsicWidth > 0 && svgIntrinsicHeight > 0 && (svgIntrinsicWidth !== item.width || svgIntrinsicHeight !== item.height)) {
+          // Only scale if intrinsic and target dimensions are valid and different
+          if (svgIntrinsicWidth > 0 && svgIntrinsicHeight > 0 && item.width > 0 && item.height > 0 && (svgIntrinsicWidth !== item.width || svgIntrinsicHeight !== item.height)) {
             const scaleX = item.width / svgIntrinsicWidth;
             const scaleY = item.height / svgIntrinsicHeight;
             // Prevent scaling by zero or infinity
             if (isFinite(scaleX) && isFinite(scaleY) && scaleX !== 0 && scaleY !== 0) {
+                 // Use toFixed for cleaner output, adjust precision as needed
                  transform += ` scale(${scaleX.toFixed(5)}, ${scaleY.toFixed(5)})`;
             } else {
                 core.warning(`Invalid scaling factor calculated for ${item.id} (scaleX: ${scaleX}, scaleY: ${scaleY}). Skipping scale transform.`);
@@ -400,10 +469,17 @@ async function run() {
             const childrenToMove = Array.from(defElement.childNodes); // Convert to array
             for (const defChild of childrenToMove) {
               // Move only element nodes (type 1) that have content or are recognized defs elements
+              // Also check if the ID already exists in the global defs to avoid duplicates (optional, relies on good ID handling)
               if (defChild.nodeType === 1 && (defChild.hasChildNodes() || defChild.hasAttributes())) {
-                 core.debug(`Moving definition element <${defChild.nodeName}> (ID: ${defChild.getAttribute('id')}) to root defs.`);
-                 // Append the *original* node (already ID-processed) to the root defs
-                 defs.appendChild(defChild); // Appending moves the node
+                 const defChildId = defChild.getAttribute('id');
+                 // Optional check: Avoid adding if an element with the same (new) ID is already in global defs
+                 if (defChildId && defs.querySelector(`[id="${defChildId}"]`)) {
+                     core.debug(`Skipping definition element <${defChild.nodeName}> (ID: ${defChildId}) as an element with this ID already exists in root defs.`);
+                 } else {
+                     core.debug(`Moving definition element <${defChild.nodeName}> (ID: ${defChildId}) to root defs.`);
+                     // Append the *original* node (already ID-processed) to the root defs
+                     defs.appendChild(defChild); // Appending moves the node
+                 }
               } else if (defChild.nodeType !== 3 || defChild.textContent.trim()) {
                  // Keep significant text/comment nodes within defs if desired (less common)
                  // defs.appendChild(defChild.cloneNode(true));
@@ -429,11 +505,20 @@ async function run() {
                       // Negative Lookahead `(?![\\w-])` ensures we don't match partial IDs (e.g., #oldId-variant)
                       // Global flag `g` to replace all occurrences
                       const escapedOldId = oldId.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-                      const idSelectorRegex = new RegExp(`(?<=#)${escapedOldId}(?![\\w-])`, 'g');
+                      // Regex: Match # followed by the exact old ID, not followed by word/hyphen chars
+                      const idSelectorRegex = new RegExp(`#${escapedOldId}(?![\\w-])`, 'g');
                       const oldCssText = cssText;
-                      cssText = cssText.replace(idSelectorRegex, newId);
+                      cssText = cssText.replace(idSelectorRegex, `#${newId}`);
                       if (cssText !== oldCssText && core.isDebug()) {
                           core.debug(`CSS ID Selector updated in style for ${item.id}: #${oldId} -> #${newId}`);
+                      }
+
+                      // Update url(#id) references within styles (e.g., for filters, masks)
+                      const urlSelectorRegex = new RegExp(`url\\(['"]?#${escapedOldId}['"]?\\)`, 'g');
+                      const oldCssTextForUrl = cssText;
+                      cssText = cssText.replace(urlSelectorRegex, `url(#${newId})`);
+                       if (cssText !== oldCssTextForUrl && core.isDebug()) {
+                          core.debug(`CSS url(#ID) updated in style for ${item.id}: url(#${oldId}) -> url(#${newId})`);
                       }
                   }
                   styleElement.textContent = cssText; // Update the style element's content
@@ -453,7 +538,8 @@ async function run() {
 
             // Skip defs and style elements as they were handled/moved above
             // Also skip title and desc of the source SVG root if present (optional)
-            if (node.nodeType === 1 && nodeName !== 'defs' && nodeName !== 'style' && nodeName !== 'title' && nodeName !== 'desc') {
+            // Also skip parsererror elements
+            if (node.nodeType === 1 && nodeName !== 'defs' && nodeName !== 'style' && nodeName !== 'title' && nodeName !== 'desc' && nodeName !== 'parsererror') {
               // Move the element node into the group
               group.appendChild(node); // Appending moves the node
             } else if (node.nodeType === 3 && node.textContent.trim()) {
@@ -468,6 +554,7 @@ async function run() {
           // *** 5. Add the fully processed group (with transformed, ID-updated content) to the root SVG ***
           rootElement.appendChild(group);
           core.info(`Successfully inlined and processed SVG for item ${item.id}`);
+          // *** END: SVG INLINING LOGIC ***
 
         } else {
           // *** Non-SVG Image Embedding (using <image> and data URI) ***
@@ -567,13 +654,13 @@ async function run() {
                         convertPathData: { // Conservative path optimization
                             floatPrecision: 3, // Standard precision
                             transformPrecision: 5, // Higher precision for transforms
-                            makeArcs: false,
-                            straightCurves: false,
-                            lineCurves: false,
+                            makeArcs: false, // Avoid changing arc representation
+                            straightCurves: false, // Avoid converting curves to lines
+                            lineCurves: false, // Avoid converting lines to curves
                             curveSmoothShorthands: false, // Avoid shorthand that might break some renderers
                             removeUselessSegments: true,
                             collapseRepeated: true,
-                            utilizeAbsolute: true,
+                            utilizeAbsolute: true, // Prefer absolute, often shorter
                         },
                         // sortAttrs: false, // Keep attribute order (can matter for some parsers/renderers)
                     },
