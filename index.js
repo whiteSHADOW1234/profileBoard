@@ -24,56 +24,21 @@ async function fetchWithRetry(url, maxRetries = 3, retryDelay = 1000) {
     core.info(`Attempt ${attempt}/${maxRetries} to fetch ${url}`);
     try {
       const response = await fetch(url);
-      if (response.ok) {
-        const contentType = response.headers.get('content-type');
-        let content = await response.text();
-        core.debug(`Fetched raw content (first 100 chars): ${content.substring(0, 100)}`);
-
-        // Handle common cases where API returns JSON containing SVG
-        if (contentType?.includes('application/json')) {
-          core.info(`Response from ${url} is JSON, attempting to extract SVG...`);
-          try {
-            const jsonData = JSON.parse(content);
-            if (typeof jsonData.svg === 'string') content = jsonData.svg;
-            else if (typeof jsonData.data === 'string') content = jsonData.data; // Common alternative field
-            else if (typeof jsonData.content === 'string') content = jsonData.content; // Another possibility
-            else throw new Error('Could not find SVG string in JSON fields "svg", "data", or "content".');
-            core.info(`Successfully extracted SVG from JSON.`);
-            core.debug(`Extracted SVG content (first 100 chars): ${content.substring(0, 100)}`);
-          } catch (e) {
-            core.warning(`Failed to parse JSON or extract SVG from ${url}: ${e.message}. Trying to parse content as SVG directly.`);
-            // Content might still be valid SVG if JSON parsing failed, proceed cautiously
-          }
-        }
-
-        // Handle cases where the fetched content *is* a data URI (less common for direct fetch, but possible)
-        if (content.trim().startsWith('data:image/svg+xml;base64,')) {
-          core.info(`Decoding base64 SVG data URI from ${url}`);
-          const base64Data = content.trim().replace('data:image/svg+xml;base64,', '');
-          content = Buffer.from(base64Data, 'base64').toString('utf8');
-          core.debug(`Decoded SVG content (first 100 chars): ${content.substring(0, 100)}`);
-        }
-
-        // Basic validation: Check if it looks like SVG after potential extraction/decoding
-        if (!content.trim().startsWith('<svg') && !content.trim().startsWith('<?xml')) {
-          // Throw error if it doesn't look like SVG after processing
-          throw new Error(`Content from ${url} does not appear to be valid SVG after processing. Content starts with: ${content.substring(0, 100)}`);
-        }
-
-        core.info(`Successfully fetched content from ${url} on attempt ${attempt}`);
-        return content; // Return the raw SVG text (or extracted SVG text)
-      } else {
-        lastError = new Error(`Failed to fetch ${url}: ${response.status} ${response.statusText}`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} - ${response.statusText}`);
       }
+      const content = await response.text();
+      core.debug(`Fetched raw content (first 100 chars): ${content.substring(0, 100)}`);
+      return content;
     } catch (error) {
       lastError = error; // Store the error from this attempt
     }
 
-    // If not the last attempt, wait before retrying
-    if (attempt < maxRetries) {
-      core.warning(`Attempt ${attempt} failed for ${url}: ${lastError.message}. Retrying in ${retryDelay}ms...`);
-      await new Promise(resolve => setTimeout(resolve, retryDelay));
-    }
+    // // If not the last attempt, wait before retrying
+    // if (attempt < maxRetries) {
+    //   core.warning(`Attempt ${attempt} failed for ${url}: ${lastError.message}. Retrying in ${retryDelay}ms...`);
+    //   await new Promise(resolve => setTimeout(resolve, retryDelay));
+    // }
   }
 
   // If loop finishes, all retries failed
