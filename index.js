@@ -273,18 +273,18 @@ async function run() {
             content = await fetchWithRetry(item.url);
             // Basic validation moved inside fetchWithRetry
             // *** END: Use fetchWithRetry for remote SVGs ***
-          } else { // Non-SVG remote content -> Create Data URI
-            core.info(`Fetching remote image content from URL: ${item.url}`);
-            // Fetch non-SVG normally (retry could be added here too if needed)
-            const response = await fetch(item.url);
-            if (!response.ok) {
-              throw new Error(`Failed to fetch ${item.url}: ${response.status} ${response.statusText}`);
-            }
-            const contentType = response.headers.get('content-type');
-            const buffer = await response.arrayBuffer();
-            const base64 = Buffer.from(buffer).toString('base64');
-            const mimeType = contentType || `image/${item.type}` || 'image/png'; // Guess mime type if needed
-            content = `data:${mimeType};base64,${base64}`; // Create data URI
+          // } else { // Non-SVG remote content -> Create Data URI
+          //   core.info(`Fetching remote image content from URL: ${item.url}`);
+          //   // Fetch non-SVG normally (retry could be added here too if needed)
+          //   const response = await fetch(item.url);
+          //   if (!response.ok) {
+          //     throw new Error(`Failed to fetch ${item.url}: ${response.status} ${response.statusText}`);
+          //   }
+          //   const contentType = response.headers.get('content-type');
+          //   const buffer = await response.arrayBuffer();
+          //   const base64 = Buffer.from(buffer).toString('base64');
+          //   const mimeType = contentType || `image/${item.type}` || 'image/png'; // Guess mime type if needed
+          //   content = `data:${mimeType};base64,${base64}`; // Create data URI
           }
         } else if (item.url.startsWith('blob:') || item.url.startsWith('images/')) {
           // Handle local files (normalize path)
@@ -298,7 +298,7 @@ async function run() {
           core.info(`Resolved local path: ${filePath}`);
           const fileBuffer = await fs.readFile(filePath);
 
-          if (isSvgType) {
+          // if (isSvgType) {
             // *** Read local SVG as raw text ***
             content = fileBuffer.toString('utf8'); // Raw SVG text
             core.debug(`Read local SVG content (first 100 chars): ${content.substring(0,100)}`);
@@ -306,12 +306,12 @@ async function run() {
              if (!content.trim().startsWith('<svg') && !content.trim().startsWith('<?xml')) {
               throw new Error(`Content from ${imagePath} does not appear to be valid SVG.`);
             }
-          } else { // Non-SVG local file -> Create Data URI
-            const base64 = fileBuffer.toString('base64');
-            const ext = path.extname(imagePath).toLowerCase().substring(1);
-            const mimeType = `image/${ext || item.type || 'png'}`;
-            content = `data:${mimeType};base64,${base64}`; // Create data URI
-          }
+          // } else { // Non-SVG local file -> Create Data URI
+          //   const base64 = fileBuffer.toString('base64');
+          //   const ext = path.extname(imagePath).toLowerCase().substring(1);
+          //   const mimeType = `image/${ext || item.type || 'png'}`;
+          //   content = `data:${mimeType};base64,${base64}`; // Create data URI
+          // }
         } else {
           throw new Error(`Unsupported URL/path format: ${item.url}`);
         }
