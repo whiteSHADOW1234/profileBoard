@@ -1,10 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="-150 0 1200 600">
   <rect width="1200" height="600" x="-150" fill="#fff"/>
   <defs/>
-  <image width="486" height="253" x="-96.23" y="-20.67" href="undefined"/>
-  <image width="476" height="237" x="423" y="-11" href="undefined"/>
-  <image width="823" height="98" x="-2" y="214" href="undefined"/>
-  <image width="639" height="223" x="80" y="325" href="undefined"/>
   <g transform="matrix(.54054 0 0 .53957 -112.453 300)">
     <rect width="390" height="6" x="19" y="537" fill="#BD0909" transform="rotate(-90 19 537)"/>
     <rect width="555" height="13" y="555" fill="#BD0909" transform="rotate(-90 0 555)"/>
