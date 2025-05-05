@@ -33,12 +33,6 @@ async function fetchWithRetry(url, maxRetries = 3, retryDelay = 1000) {
     } catch (error) {
       lastError = error; // Store the error from this attempt
     }
-
-    // // If not the last attempt, wait before retrying
-    // if (attempt < maxRetries) {
-    //   core.warning(`Attempt ${attempt} failed for ${url}: ${lastError.message}. Retrying in ${retryDelay}ms...`);
-    //   await new Promise(resolve => setTimeout(resolve, retryDelay));
-    // }
   }
 
   // If loop finishes, all retries failed
@@ -273,18 +267,6 @@ async function run() {
             content = await fetchWithRetry(item.url);
             // Basic validation moved inside fetchWithRetry
             // *** END: Use fetchWithRetry for remote SVGs ***
-          // } else { // Non-SVG remote content -> Create Data URI
-          //   core.info(`Fetching remote image content from URL: ${item.url}`);
-          //   // Fetch non-SVG normally (retry could be added here too if needed)
-          //   const response = await fetch(item.url);
-          //   if (!response.ok) {
-          //     throw new Error(`Failed to fetch ${item.url}: ${response.status} ${response.statusText}`);
-          //   }
-          //   const contentType = response.headers.get('content-type');
-          //   const buffer = await response.arrayBuffer();
-          //   const base64 = Buffer.from(buffer).toString('base64');
-          //   const mimeType = contentType || `image/${item.type}` || 'image/png'; // Guess mime type if needed
-          //   content = `data:${mimeType};base64,${base64}`; // Create data URI
           }
         } else if (item.url.startsWith('blob:') || item.url.startsWith('images/')) {
           // Handle local files (normalize path)
@@ -298,20 +280,12 @@ async function run() {
           core.info(`Resolved local path: ${filePath}`);
           const fileBuffer = await fs.readFile(filePath);
 
-          // if (isSvgType) {
-            // *** Read local SVG as raw text ***
-            content = fileBuffer.toString('utf8'); // Raw SVG text
-            core.debug(`Read local SVG content (first 100 chars): ${content.substring(0,100)}`);
-             // Basic validation
-             if (!content.trim().startsWith('<svg') && !content.trim().startsWith('<?xml')) {
-              throw new Error(`Content from ${imagePath} does not appear to be valid SVG.`);
-            }
-          // } else { // Non-SVG local file -> Create Data URI
-          //   const base64 = fileBuffer.toString('base64');
-          //   const ext = path.extname(imagePath).toLowerCase().substring(1);
-          //   const mimeType = `image/${ext || item.type || 'png'}`;
-          //   content = `data:${mimeType};base64,${base64}`; // Create data URI
-          // }
+          content = fileBuffer.toString('utf8'); // Raw SVG text
+          core.debug(`Read local SVG content (first 100 chars): ${content.substring(0,100)}`);
+            // Basic validation
+            if (!content.trim().startsWith('<svg') && !content.trim().startsWith('<?xml')) {
+            throw new Error(`Content from ${imagePath} does not appear to be valid SVG.`);
+          }
         } else {
           throw new Error(`Unsupported URL/path format: ${item.url}`);
         }
@@ -520,25 +494,7 @@ async function run() {
           rootElement.appendChild(group);
           core.info(`Successfully inlined and processed SVG for item ${item.id}`);
           // *** END: SVG INLINING LOGIC ***
-
-        } else {
-          // *** Non-SVG Image Embedding (using <image> and data URI) ***
-          // This logic remains the same for non-SVG types like PNG, JPG
-          core.info(`Embedding image for item ${item.id} using <image> tag`);
-          const imageElement = rootSvg.createElement('image');
-          imageElement.setAttribute('id', `item_image_${item.id}`); // Use item ID with prefix
-          imageElement.setAttribute('x', String(item.x));
-          imageElement.setAttribute('y', String(item.y));
-          imageElement.setAttribute('width', String(item.width));
-          imageElement.setAttribute('height', String(item.height));
-          // The 'content' here is already a data URI prepared earlier
-          imageElement.setAttribute('href', content); // Use 'href' (SVG 2 standard)
-          // imageElement.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', content); // Add xlink:href for broader compatibility if needed
-          // Preserve aspect ratio behavior (optional, default is 'defer')
-          // imageElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-
-          rootElement.appendChild(imageElement);
-        }
+          }
       } catch (error) {
         // Log warning instead of failing the whole action for one item
         core.warning(`Error processing item ${item.id} (URL/Path: ${item.url}): ${error.message}\n${error.stack || ''}`);
